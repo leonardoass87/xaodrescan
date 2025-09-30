@@ -14,7 +14,7 @@ export default function RegisterPage() {
           <button type="submit" className="bg-[var(--color-red)] hover:bg-[#ff0033] text-white font-bold py-2 rounded shadow-lg transition-colors" style={{boxShadow: '0 0 12px #ff1744, 0 0 24px #ff1744'}}>Registrar</button>
         </form>
         <div className="flex flex-col items-center mt-6 gap-2">
-          <a href="/login" className="text-white hover:text-[var(--color-red)] hover:underline text-sm transition-colors">Já tem conta? Entrar</a>
+          <a href="/login" className="text-white hover:text-[var(--color-red)] hover:underline text-sm transition-colors">Já tem conta? Entra Já</a>
         </div>
       </div>
     </main>
