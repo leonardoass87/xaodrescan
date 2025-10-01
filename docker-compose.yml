@@ -10,33 +10,28 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # 1. Checkout do repositório sem limpar antes
+      # 0. Limpar workspace manualmente (resolve EACCES no node_modules/.bin)
+      - name: Pre-clean workspace
+        run: |
+          echo "🧹 Limpando workspace antigo..."
+          sudo rm -rf /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan/xaodrescan/*
+          sudo mkdir -p /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan/xaodrescan
+          sudo chown -R lab:lab /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan/xaodrescan
+
+      # 1. Checkout do repositório
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          clean: false   # ⬅️ evita tentar apagar node_modules antigo
+          clean: false   # não deixa o checkout tentar apagar o workspace
+          fetch-depth: 0
 
       # 2. Corrigir ownership do workspace (garantia extra)
       - name: Fix ownership
         run: sudo chown -R $USER:$USER /home/lab/projects/xaodrescan/actions-runner/_work
 
-      # 3. Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # 4. Instalar dependências
-      - name: Install dependencies
-        run: npm install
-
-      # 5. Build Next.js
-      - name: Build Next.js app
-        run: npm run build
-
-      # 6. Deploy com Docker Compose
+      # 3. Deploy com Docker Compose
       - name: Deploy with Docker Compose
         run: |
           echo "🚀 Subindo containers..."
           docker compose -f docker-compose.yml down
-          docker compose -f docker-compose.yml up -d --build 
+          docker compose -f docker-compose.yml up -d --build
