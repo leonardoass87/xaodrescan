@@ -1,30 +1,42 @@
-services:
-  postgres:
-    image: postgres:15
-    container_name: xaodrescan_postgres
-    environment:
-      POSTGRES_DB: xaodrescan
-      POSTGRES_USER: xaodrescan_user
-      POSTGRES_PASSWORD: xaodrescan_password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+name: Deploy
 
-  frontend:
-    build: .
-    container_name: xaodrescan_frontend
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
-    depends_on:
-      - postgres
-    environment:
-      - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
-    # 🔑 Garante que node_modules local nunca sobrescreve o do container
-    volumes:
-      - /app/node_modules
+on:
+  push:
+    branches:
+      - master   # só dispara deploy quando fizer push no master
 
-volumes:
-  postgres_data:
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted   # seu runner na VM
+
+    steps:
+      # 1. Checkout do repositório
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2. Corrigir permissões / limpar node_modules antigo
+      - name: Fix workspace permissions
+        run: |
+          echo "🔧 Limpando workspace..."
+          sudo rm -rf node_modules package-lock.json || true
+
+      # 3. Setup Node.js (mesma versão do seu projeto)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 4. Instalar dependências do projeto
+      - name: Install dependencies
+        run: npm install
+
+      # 5. Build do frontend Next.js
+      - name: Build Next.js app
+        run: npm run build
+
+      # 6. Deploy com Docker Compose
+      - name: Deploy with Docker Compose
+        run: |
+          echo "🚀 Subindo containers..."
+          docker compose -f docker-compose.prod.yml down
+          docker compose -f docker-compose.prod.yml up -d --build
