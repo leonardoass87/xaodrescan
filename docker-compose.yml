@@ -22,6 +22,9 @@ services:
       - postgres
     environment:
       - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
+    # 🔑 Garante que node_modules local nunca sobrescreve o do container
+    volumes:
+      - /app/node_modules
 
 volumes:
   postgres_data:
