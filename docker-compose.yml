@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - master   # só dispara deploy quando fizer push no master
+      - master   # dispara quando fizer push no master
 
 jobs:
   build-and-deploy:
@@ -14,19 +14,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 2. Corrigir permissões / limpar node_modules antigo
-      - name: Fix workspace permissions
-        run: |
-          echo "🔧 Limpando workspace..."
-          sudo rm -rf node_modules package-lock.json || true
+      # 2. Corrigir ownership do workspace (evita EACCES no cleanup)
+      - name: Fix ownership
+        run: sudo chown -R $USER:$USER /home/lab/projects/xaodrescan/actions-runner/_work
 
-      # 3. Setup Node.js (mesma versão do seu projeto)
+      # 3. Setup Node.js (mesma versão do projeto)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 4. Instalar dependências do projeto
+      # 4. Instalar dependências
       - name: Install dependencies
         run: npm install
 
