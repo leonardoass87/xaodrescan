@@ -38,5 +38,5 @@ jobs:
       - name: Deploy with Docker Compose
         run: |
           echo "🚀 Subindo containers..."
-          docker compose -f docker-compose.prod.yml down
-          docker compose -f docker-compose.prod.yml up -d --build 
+          docker compose -f docker-compose.yml down
+          docker compose -f docker-compose.yml up -d --build 
