@@ -1,9 +1,31 @@
-version: '3.8'
+
 
 services:
+  postgres:
+    image: postgres:15
+    container_name: xaodrescan_postgres
+    environment:
+      POSTGRES_DB: xaodrescan
+      POSTGRES_USER: xaodrescan_user
+      POSTGRES_PASSWORD: xaodrescan_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   frontend:
     build: .
     container_name: xaodrescan_frontend
     ports:
       - "3000:3000"
     restart: unless-stopped
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
+
+volumes:
+  postgres_data:

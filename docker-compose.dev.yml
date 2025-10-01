@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: .
+    container_name: xaodrescan_frontend_dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules  # Evita conflito entre host e container
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: xaodrescan_postgres_dev
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=xaodrescan
+      - POSTGRES_USER=xaodrescan_user
+      - POSTGRES_PASSWORD=xaodrescan_password
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+
+volumes:
+  pgdata_dev:
