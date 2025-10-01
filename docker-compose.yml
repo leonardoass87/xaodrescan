@@ -1,37 +1,27 @@
-name: Deploy
+services:
+  postgres:
+    image: postgres:15
+    container_name: xaodrescan_postgres
+    environment:
+      POSTGRES_DB: xaodrescan
+      POSTGRES_USER: xaodrescan_user
+      POSTGRES_PASSWORD: xaodrescan_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
-on:
-  push:
-    branches:
-      - master
+  frontend:
+    build: .
+    container_name: xaodrescan_frontend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
 
-jobs:
-  build-and-deploy:
-    runs-on: self-hosted
-
-    steps:
-      # 0. Limpar workspace manualmente (resolve EACCES no node_modules/.bin)
-      - name: Pre-clean workspace
-        run: |
-          echo "🧹 Limpando workspace antigo..."
-          sudo rm -rf /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan/xaodrescan/*
-          sudo mkdir -p /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan/xaodrescan
-          sudo chown -R lab:lab /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan/xaodrescan
-
-      # 1. Checkout do repositório
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          clean: false   # não deixa o checkout tentar apagar o workspace
-          fetch-depth: 0
-
-      # 2. Corrigir ownership do workspace (garantia extra)
-      - name: Fix ownership
-        run: sudo chown -R $USER:$USER /home/lab/projects/xaodrescan/actions-runner/_work
-
-      # 3. Deploy com Docker Compose
-      - name: Deploy with Docker Compose
-        run: |
-          echo "🚀 Subindo containers..."
-          docker compose -f docker-compose.yml down
-          docker compose -f docker-compose.yml up -d --build
+volumes:
+  postgres_data:
