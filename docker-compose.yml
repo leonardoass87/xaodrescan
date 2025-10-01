@@ -22,6 +22,6 @@ services:
       - postgres
     environment:
       - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
-
+      - USE_SSL=false
 volumes:
   postgres_data:
