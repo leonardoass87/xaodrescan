@@ -10,12 +10,16 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Fix ownership before cleanup
+        run: |
+          echo "🔧 Corrigindo permissões..."
+          chown -R root:root /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan || true
+
       - name: Force clean workspace
         run: |
           echo "🧹 Limpando workspace manualmente..."
           rm -rf /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan
           mkdir -p /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan
-          chown -R root:root /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan
 
       - name: Checkout repo
         uses: actions/checkout@v4
