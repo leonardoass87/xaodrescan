@@ -3,7 +3,7 @@ name: Deploy to Homelab
 on:
   push:
     branches:
-      - master   # ou "main" se o branch principal for main
+      - main   # ou "main" se o branch principal for main
 
 jobs:
   deploy:
