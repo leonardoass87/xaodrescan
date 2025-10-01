@@ -2,8 +2,12 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
+// Configura SSL condicional
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://xaodrescan_user:xaodrescan_password@localhost:5432/xaodrescan',
+  ssl: process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }  // produção (homelab, vercel, etc.)
+    : false                           // dev/local
 });
 
 async function setupDatabase() {
