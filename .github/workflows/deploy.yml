@@ -3,19 +3,30 @@ name: Deploy to Homelab
 on:
   push:
     branches:
-      - main   # ou main, depende do nome do seu branch principal
+      - master   # ou "main" se o branch principal for main
 
 jobs:
   deploy:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout do código
+      # 0. Limpa o workspace ANTES do checkout para evitar erro de permissão no node_modules
+      - name: Pre-clean workspace
+        run: |
+          echo "🧹 Limpando workspace manualmente..."
+          sudo rm -rf /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan/xaodrescan
+          mkdir -p /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan/xaodrescan
+          sudo chown -R lab:lab /home/lab/projects/xaodrescan/actions-runner/_work/xaodrescan/xaodrescan
+
+      # 1. Checkout do código
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          clean: false   # evita o problema de EACCES no node_modules
+          clean: false   # evita que o checkout tente apagar node_modules
+          fetch-depth: 0
 
-      - name: Deploy containers
+      # 2. Subir containers com Docker Compose
+      - name: Deploy with Docker Compose
         run: |
           echo "🚀 Subindo containers com Docker Compose..."
           docker compose -f docker-compose.yml down
