@@ -3,22 +3,24 @@ name: Deploy
 on:
   push:
     branches:
-      - master   # dispara quando fizer push no master
+      - master
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted   # seu runner na VM
+    runs-on: self-hosted
 
     steps:
-      # 1. Checkout do repositório
+      # 1. Checkout do repositório sem limpar antes
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          clean: false   # ⬅️ evita tentar apagar node_modules antigo
 
-      # 2. Corrigir ownership do workspace (evita EACCES no cleanup)
+      # 2. Corrigir ownership do workspace (garantia extra)
       - name: Fix ownership
         run: sudo chown -R $USER:$USER /home/lab/projects/xaodrescan/actions-runner/_work
 
-      # 3. Setup Node.js (mesma versão do projeto)
+      # 3. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -28,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # 5. Build do frontend Next.js
+      # 5. Build Next.js
       - name: Build Next.js app
         run: npm run build
 
