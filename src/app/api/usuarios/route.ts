@@ -10,7 +10,7 @@ export async function GET() {
     const client = await pool.connect();
 
     const result = await client.query(`
-      SELECT id, nome, email, role, status, data_criacao
+      SELECT id, nome, email, role, created_at
       FROM usuarios
       ORDER BY id ASC
     `);
@@ -20,7 +20,7 @@ export async function GET() {
     return NextResponse.json(
       result.rows.map((u) => ({
         ...u,
-        dataCriacao: u.data_criacao, // ajusta campo snake_case → camelCase
+        dataCriacao: u.created_at, // ajusta campo snake_case → camelCase
       }))
     );
   } catch (error) {
