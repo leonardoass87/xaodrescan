@@ -8,6 +8,9 @@ COPY package*.json ./
 # Instalar dependências
 RUN npm install
 
+# Copiar o código fonte (será sobrescrito pelo volume, mas necessário para build inicial)
+COPY . .
+
 # Criar pasta de cache do Next.js (evita erros com .next ausente)
 RUN mkdir -p .next
 

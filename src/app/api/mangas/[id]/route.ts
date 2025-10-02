@@ -65,3 +65,66 @@ export async function GET(
     return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
   }
 }
+
+// DELETE - Deletar mangá
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const mangaId = parseInt(params.id);
+    
+    if (isNaN(mangaId)) {
+      return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
+    }
+
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+
+      // Deletar páginas (cascade delete)
+      await client.query(`
+        DELETE FROM paginas 
+        WHERE capitulo_id IN (
+          SELECT id FROM capitulos WHERE manga_id = $1
+        )
+      `, [mangaId]);
+
+      // Deletar capítulos (cascade delete)
+      await client.query(`
+        DELETE FROM capitulos WHERE manga_id = $1
+      `, [mangaId]);
+
+      // Deletar mangá
+      const result = await client.query(`
+        DELETE FROM mangas WHERE id = $1
+      `, [mangaId]);
+
+      if (result.rowCount === 0) {
+        await client.query('ROLLBACK');
+        client.release();
+        return NextResponse.json({ error: 'Mangá não encontrado' }, { status: 404 });
+      }
+
+      await client.query('COMMIT');
+      
+      client.release();
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Mangá deletado com sucesso!' 
+      });
+
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+
+  } catch (error) {
+    console.error('Erro ao deletar mangá:', error);
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
+  }
+}

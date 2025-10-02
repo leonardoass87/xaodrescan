@@ -100,6 +100,49 @@ export default function MangasPage() {
   const [previewPaginas, setPreviewPaginas] = useState<string[]>([]);
   const [salvando, setSalvando] = useState(false);
 
+  // Funções de ação dos botões
+  const handleEditar = (manga: Manga) => {
+    alert(`Editar mangá: ${manga.titulo}\n\nFuncionalidade em desenvolvimento!`);
+  };
+
+  const handleDeletar = async (manga: Manga) => {
+    if (confirm(`Tem certeza que deseja deletar "${manga.titulo}"?\n\nEsta ação não pode ser desfeita.`)) {
+      try {
+        console.log('Tentando deletar mangá ID:', manga.id);
+        
+        // Testar primeiro o endpoint de teste
+        const testResponse = await fetch('/api/test-delete', { method: 'DELETE' });
+        console.log('Test DELETE status:', testResponse.status);
+        
+        // Usar a nova API de delete
+        const response = await fetch(`/api/mangas/delete?id=${manga.id}`, {
+          method: 'DELETE'
+        });
+        
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Resultado da API:', result);
+          alert('Mangá deletado com sucesso!');
+          await carregarMangas(); // Recarregar lista
+        } else {
+          const errorText = await response.text();
+          console.error('Erro na resposta:', errorText);
+          alert(`Erro ao deletar mangá: ${response.status} - ${errorText}`);
+        }
+      } catch (error) {
+        console.error('Erro ao deletar mangá:', error);
+        alert('Erro ao deletar mangá: ' + (error as Error).message);
+      }
+    }
+  };
+
+  const handleVisualizar = (manga: Manga) => {
+    alert(`Visualizar mangá: ${manga.titulo}\n\nCapítulos: ${manga.capitulos?.length || 0}\n\nFuncionalidade em desenvolvimento!`);
+  };
+
   // Função para carregar mangás da API
   const carregarMangas = async () => {
     try {
@@ -124,7 +167,7 @@ export default function MangasPage() {
                 capitulos: mangaCompleto.capitulos || [],
                 visualizacoes: manga.visualizacoes || 0,
                 capa: manga.capa,
-                dataAdicao: manga.data_adicao || manga.dataAdicao
+                dataAdicao: manga.dataAdicao
               };
             }
             
@@ -480,13 +523,25 @@ export default function MangasPage() {
                 </div>
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <div className="flex gap-2">
-                    <button className="bg-blue-500/80 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors">
+                    <button 
+                      onClick={() => handleEditar(manga)}
+                      className="bg-blue-500/80 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors"
+                      title="Editar mangá"
+                    >
                       ✏️
                     </button>
-                    <button className="bg-red-500/80 hover:bg-red-500 text-white p-2 rounded-lg transition-colors">
+                    <button 
+                      onClick={() => handleDeletar(manga)}
+                      className="bg-red-500/80 hover:bg-red-500 text-white p-2 rounded-lg transition-colors"
+                      title="Deletar mangá"
+                    >
                       🗑️
                     </button>
-                    <button className="bg-gray-500/80 hover:bg-gray-500 text-white p-2 rounded-lg transition-colors">
+                    <button 
+                      onClick={() => handleVisualizar(manga)}
+                      className="bg-gray-500/80 hover:bg-gray-500 text-white p-2 rounded-lg transition-colors"
+                      title="Visualizar mangá"
+                    >
                       👁️
                     </button>
                   </div>
@@ -551,16 +606,28 @@ export default function MangasPage() {
                     </td>
                     <td className="p-4 text-gray-300">{manga.capitulos?.length || 0}</td>
                     <td className="p-4 text-gray-300">{formatarVisualizacoes(manga.visualizacoes)}</td>
-                    <td className="p-4 text-gray-300">{new Date(manga.dataAdicao || manga.data_adicao).toLocaleDateString('pt-BR')}</td>
+                    <td className="p-4 text-gray-300">{new Date(manga.dataAdicao).toLocaleDateString('pt-BR')}</td>
                     <td className="p-4">
                       <div className="flex gap-2">
-                        <button className="text-blue-400 hover:text-blue-300 p-2 hover:bg-blue-500/10 rounded transition-colors">
+                        <button 
+                          onClick={() => handleEditar(manga)}
+                          className="text-blue-400 hover:text-blue-300 p-2 hover:bg-blue-500/10 rounded transition-colors"
+                          title="Editar mangá"
+                        >
                           ✏️
                         </button>
-                        <button className="text-red-400 hover:text-red-300 p-2 hover:bg-red-500/10 rounded transition-colors">
+                        <button 
+                          onClick={() => handleDeletar(manga)}
+                          className="text-red-400 hover:text-red-300 p-2 hover:bg-red-500/10 rounded transition-colors"
+                          title="Deletar mangá"
+                        >
                           🗑️
                         </button>
-                        <button className="text-gray-400 hover:text-gray-300 p-2 hover:bg-gray-500/10 rounded transition-colors">
+                        <button 
+                          onClick={() => handleVisualizar(manga)}
+                          className="text-gray-400 hover:text-gray-300 p-2 hover:bg-gray-500/10 rounded transition-colors"
+                          title="Visualizar mangá"
+                        >
                           👁️
                         </button>
                       </div>

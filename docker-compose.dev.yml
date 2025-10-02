@@ -19,8 +19,11 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
       - CHOKIDAR_USEPOLLING=true   # garante hot reload no Windows/WSL
+      - WATCHPACK_POLLING=true      # melhora hot reload no Docker
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
   postgres:
     image: postgres:15
@@ -33,6 +36,12 @@ services:
       - POSTGRES_PASSWORD=xaodrescan_password
     volumes:
       - pgdata_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xaodrescan_user -d xaodrescan"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
 volumes:
   pgdata_dev:
