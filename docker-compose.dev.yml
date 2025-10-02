@@ -4,16 +4,21 @@ services:
   frontend:
     build:
       context: .
+      dockerfile: Dockerfile.dev
     container_name: xaodrescan_frontend_dev
     ports:
       - "3000:3000"
     volumes:
       - .:/app
-      - /app/node_modules  # Evita conflito entre host e container
+      - /app/node_modules   # evita conflito entre host e container
+      - ./uploads:/app/uploads   # 👈 volume para salvar arquivos de upload
+    stdin_open: true
+    tty: true
     command: npm run dev
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
+      - CHOKIDAR_USEPOLLING=true   # garante hot reload no Windows/WSL
     depends_on:
       - postgres
 

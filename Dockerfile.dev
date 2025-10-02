@@ -1,0 +1,18 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar apenas package.json para instalar dependências
+COPY package*.json ./
+
+# Instalar dependências
+RUN npm install
+
+# Criar pasta de cache do Next.js (evita erros com .next ausente)
+RUN mkdir -p .next
+
+# Expor porta
+EXPOSE 3000
+
+# Comando para rodar em modo dev (hot reload)
+CMD ["npm", "run", "dev"]

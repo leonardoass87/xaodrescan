@@ -1,12 +1,16 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const { login } = useAuth();
+  const router = useRouter();
   
   function validateEmail(email: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -16,6 +20,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    
     if (!email || !senha) {
       setError("Preencha todos os campos.");
       return;
@@ -24,13 +29,41 @@ export default function LoginPage() {
       setError("Digite um e-mail válido.");
       return;
     }
-    // Simulação de login (substitua pela chamada real à API)
-    if (email === "admin@teste.com" && senha === "123456") {
-      setSuccess("Login efetuado com sucesso!");
-      setEmail("");
-      setSenha("");
-    } else {
-      setError("E-mail ou senha incorretos.");
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          senha,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess("Login efetuado com sucesso!");
+        
+        // Usar o contexto para fazer login
+        login(data.user);
+        
+        // Aguardar um pouco para garantir que o login foi processado
+        setTimeout(() => {
+          // Redirecionar baseado no role do usuário
+          if (data.user.role === 'admin') {
+            router.push('/admin');
+          } else {
+            router.push('/');
+          }
+        }, 100);
+      } else {
+        setError(data.error || "Erro ao fazer login");
+      }
+    } catch (error) {
+      setError("Erro de conexão. Tente novamente.");
     }
   }
 

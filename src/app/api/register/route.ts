@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
 
     // Inserir usuário no banco
     const result = await pool.query(
-      'INSERT INTO usuarios (nome, email, senha, created_at) VALUES ($1, $2, $3, NOW()) RETURNING id, nome, email, created_at',
-      [nome, email, hashedPassword]
+      'INSERT INTO usuarios (nome, email, senha, role, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING id, nome, email, role, created_at',
+      [nome, email, hashedPassword, 'usuario']
     );
 
     const newUser = result.rows[0];
