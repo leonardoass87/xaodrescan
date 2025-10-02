@@ -21,16 +21,16 @@ services:
     container_name: xaodrescan_frontend
     ports:
       - "3000:3000"
-    restart: unless-stopped
-    depends_on:
-      - postgres
+    volumes:
+      - ./uploads:/app/uploads        # 👈 persistência de uploads   
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
-      - JWT_SECRET=${JWT_SECRET}       # 👈 setado via .env ou variável no servidor
       - USE_SSL=false
-    volumes:
-      - ./uploads:/app/uploads        # 👈 persistência de uploads
+      - MANGA_PATH=/mangas                       # 👈 mesma variável no prod
+    depends_on:
+      - postgres
+    restart: unless-stopped
 
 volumes:
   postgres_data:

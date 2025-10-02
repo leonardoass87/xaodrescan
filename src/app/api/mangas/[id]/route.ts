@@ -1,9 +1,80 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import path from 'path';
+import fs from 'fs';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
+
+
+export async function POST(request: NextRequest) {
+  const client = await pool.connect();
+  try {
+    const { titulo, autor, generos, status, capa, capitulo } = await request.json();
+    const uploadRoot = process.env.UPLOAD_DIR || "./uploads";
+
+    await client.query("BEGIN");
+
+    // Inserir mangá
+    const resultManga = await client.query(
+      `INSERT INTO mangas (titulo, autor, generos, status, capa, data_adicao)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       RETURNING id`,
+      [titulo, autor, generos, status, ""] // capa será atualizada depois
+    );
+
+    const mangaId = resultManga.rows[0].id;
+    const mangaDir = path.join(uploadRoot, `${mangaId}`);
+    const paginasDir = path.join(mangaDir, "paginas");
+
+    // Cria pastas
+    fs.mkdirSync(paginasDir, { recursive: true });
+
+    // Salva a capa
+    if (capa) {   
+      const relativePath = `${mangaId}/capa.jpg`;
+      const capaUrl = `/api/uploads/${relativePath}`;        
+
+      await client.query(`UPDATE mangas SET capa = $1 WHERE id = $2`, [
+        capaUrl,
+        mangaId,
+      ]);
+    }
+
+    // Inserir capítulo
+    const resultCap = await client.query(
+      `INSERT INTO capitulos (manga_id, numero, titulo, data_publicacao)
+       VALUES ($1, $2, $3, NOW())
+       RETURNING id`,
+      [mangaId, capitulo.numero, capitulo.titulo]
+    );
+
+    const capituloId = resultCap.rows[0].id;
+
+    // Salvar páginas
+    for (let i = 0; i < capitulo.paginas.length; i++) {       
+
+      const relativePath = `${mangaId}/paginas/pagina_${i + 1}.jpg`;
+      const paginaUrl = `/api/uploads/${relativePath}`;
+
+      await client.query(
+        `INSERT INTO paginas (capitulo_id, numero, imagem)
+         VALUES ($1, $2, $3)`,
+        [capituloId, i + 1, paginaUrl	]
+      );
+    }
+
+    await client.query("COMMIT");
+    return NextResponse.json({ success: true, mangaId });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Erro ao criar mangá:", error);
+    return NextResponse.json({ error: "Erro ao criar mangá" }, { status: 500 });
+  } finally {
+    client.release();
+  }
+}
 
 // GET - Buscar mangá específico com capítulos e páginas
 export async function GET(

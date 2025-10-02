@@ -5,7 +5,7 @@ export default function Home() {
     <main className="flex flex-col items-center justify-center min-h-[calc(100vh-112px)]">
       <h1 className="text-[var(--color-red)] text-4xl font-bold mb-4" style={{textShadow: '0 0 16px #ff1744, 0 0 32px #ff1744'}}>XaodreScan</h1>
       <h2 className="text-gray-400 text-xl font-medium" style={{textShadow: '0 0 8px #fff2'}}>O seu catálogo de lançamentos</h2>
-      <p className="text-green-400 text-lg mt-4">🔥 HOT RELOAD FUNCIONANDO! 🔥</p>
+      <p className="text-yellow-400 text-lg mt-4">🔥 HOT RELOAD FUNCIONANDO! 🔥</p>
       
     </main>
   );
