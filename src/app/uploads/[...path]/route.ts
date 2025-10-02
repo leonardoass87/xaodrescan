@@ -4,10 +4,11 @@ import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const filePath = params.path.join('/');
+    const { path: pathArray } = await params;
+    const filePath = pathArray.join('/');
     const fullPath = path.join(process.cwd(), 'uploads', filePath);
     
     const file = await readFile(fullPath);
@@ -32,7 +33,7 @@ export async function GET(
         break;
     }
     
-    return new NextResponse(file, {
+    return new NextResponse(file as any, {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=31536000', // Cache por 1 ano
