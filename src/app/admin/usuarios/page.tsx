@@ -1,46 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Usuario {
   id: number;
   nome: string;
   email: string;
-  tipo: "admin" | "usuario";
+  role: "admin" | "usuario";   // 👈 agora reflete o backend (coluna `role`)
   status: "ativo" | "inativo";
   dataCriacao: string;
 }
 
-const usuariosExemplo: Usuario[] = [
-  {
-    id: 1,
-    nome: "João Silva",
-    email: "joao@email.com",
-    tipo: "admin",
-    status: "ativo",
-    dataCriacao: "2024-01-15"
-  },
-  {
-    id: 2,
-    nome: "Maria Santos",
-    email: "maria@email.com",
-    tipo: "usuario",
-    status: "ativo",
-    dataCriacao: "2024-01-20"
-  },
-  {
-    id: 3,
-    nome: "Pedro Costa",
-    email: "pedro@email.com",
-    tipo: "usuario",
-    status: "inativo",
-    dataCriacao: "2024-01-25"
-  }
-];
-
 export default function UsuariosPage() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>(usuariosExemplo);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [filtro, setFiltro] = useState("");
+
+  // Buscar usuários da API
+  useEffect(() => {
+    async function fetchUsuarios() {
+      try {
+        const res = await fetch("/api/usuarios"); // rota do backend
+        if (!res.ok) throw new Error("Erro ao buscar usuários");
+        const data = await res.json();
+        setUsuarios(data);
+      } catch (error) {
+        console.error("Erro ao carregar usuários:", error);
+      }
+    }
+
+    fetchUsuarios();
+  }, []);
 
   const usuariosFiltrados = usuarios.filter(usuario =>
     usuario.nome.toLowerCase().includes(filtro.toLowerCase()) ||
@@ -111,11 +100,11 @@ export default function UsuariosPage() {
                   <td className="p-4 text-gray-300">{usuario.email}</td>
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      usuario.tipo === 'admin' 
+                      usuario.role === 'admin' 
                         ? 'bg-red-500/20 text-red-300 border border-red-500/30' 
                         : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                     }`}>
-                      {usuario.tipo === 'admin' ? 'Admin' : 'Usuário'}
+                      {usuario.role === 'admin' ? 'Admin' : 'Usuário'}
                     </span>
                   </td>
                   <td className="p-4">
@@ -159,7 +148,7 @@ export default function UsuariosPage() {
           <div className="text-gray-400 text-sm">Usuários Ativos</div>
         </div>
         <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-          <div className="text-2xl font-bold text-red-400">{usuarios.filter(u => u.tipo === 'admin').length}</div>
+          <div className="text-2xl font-bold text-red-400">{usuarios.filter(u => u.role === 'admin').length}</div>
           <div className="text-gray-400 text-sm">Administradores</div>
         </div>
       </div>

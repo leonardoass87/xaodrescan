@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:15
@@ -13,7 +15,9 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.prod   # 👈 usa um Dockerfile otimizado para produção
     container_name: xaodrescan_frontend
     ports:
       - "3000:3000"
@@ -21,7 +25,12 @@ services:
     depends_on:
       - postgres
     environment:
+      - NODE_ENV=production
       - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
+      - JWT_SECRET=${JWT_SECRET}       # 👈 setado via .env ou variável no servidor
       - USE_SSL=false
+    volumes:
+      - ./uploads:/app/uploads        # 👈 persistência de uploads
+
 volumes:
   postgres_data:

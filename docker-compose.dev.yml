@@ -11,15 +11,16 @@ services:
     volumes:
       - .:/app
       - /app/node_modules   # evita conflito entre host e container
-      - ./uploads:/app/uploads   # 👈 volume para salvar arquivos de upload
+      - ./uploads:/app/uploads   # persistência de uploads
     stdin_open: true
     tty: true
     command: npm run dev
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
-      - CHOKIDAR_USEPOLLING=true   # garante hot reload no Windows/WSL
-      - WATCHPACK_POLLING=true      # melhora hot reload no Docker
+      - JWT_SECRET=supersegredo_dev    # 👈 importante para o jwt funcionar
+      - CHOKIDAR_USEPOLLING=true       # garante hot reload no Windows/WSL
+      - WATCHPACK_POLLING=true         # melhora hot reload no Docker
     depends_on:
       postgres:
         condition: service_healthy

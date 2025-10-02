@@ -2,20 +2,17 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copiar apenas package.json para instalar dependências
+# Copiar apenas os manifests primeiro (cache inteligente)
 COPY package*.json ./
 
 # Instalar dependências
 RUN npm install
 
-# Copiar o código fonte (será sobrescrito pelo volume, mas necessário para build inicial)
+# Copiar o resto do código (para build inicial, mesmo que volume sobrescreva depois)
 COPY . .
-
-# Criar pasta de cache do Next.js (evita erros com .next ausente)
-RUN mkdir -p .next
 
 # Expor porta
 EXPOSE 3000
 
-# Comando para rodar em modo dev (hot reload)
+# Rodar Next.js em modo dev
 CMD ["npm", "run", "dev"]
