@@ -37,54 +37,62 @@ export default function Header() {
           <li>
             <Link 
               href="/" 
-              className={`transition-colors ${
+              className={`relative px-6 py-3 font-medium transition-all duration-200 ${
                 pathname === "/" 
-                  ? "text-[var(--color-red)] font-bold" 
-                  : "hover:text-[var(--color-red)]"
+                  ? "text-white bg-slate-800 border-b-2 border-blue-500" 
+                  : "text-gray-400 hover:text-white hover:bg-slate-800/50"
               }`}
-              style={pathname === "/" ? {textShadow: '0 0 8px #ff1744'} : {}}
             >
               Home
+              {pathname === "/" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+              )}
             </Link>
           </li>
           <li>
             <Link 
               href="/catalogo" 
-              className={`transition-colors ${
+              className={`relative px-6 py-3 font-medium transition-all duration-200 ${
                 pathname === "/catalogo" 
-                  ? "text-[var(--color-red)] font-bold" 
-                  : "hover:text-[var(--color-red)]"
+                  ? "text-white bg-slate-800 border-b-2 border-blue-500" 
+                  : "text-gray-400 hover:text-white hover:bg-slate-800/50"
               }`}
-              style={pathname === "/catalogo" ? {textShadow: '0 0 8px #ff1744'} : {}}
             >
               Catálogo
+              {pathname === "/catalogo" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+              )}
             </Link>
           </li>
           <li>
             <Link 
               href="/lancamentos" 
-              className={`transition-colors ${
+              className={`relative px-6 py-3 font-medium transition-all duration-200 ${
                 pathname === "/lancamentos" 
-                  ? "text-[var(--color-red)] font-bold" 
-                  : "hover:text-[var(--color-red)]"
+                  ? "text-white bg-slate-800 border-b-2 border-blue-500" 
+                  : "text-gray-400 hover:text-white hover:bg-slate-800/50"
               }`}
-              style={pathname === "/lancamentos" ? {textShadow: '0 0 8px #ff1744'} : {}}
             >
               Lançamentos
+              {pathname === "/lancamentos" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+              )}
             </Link>
           </li>
           {user && (
             <li>
               <Link 
                 href="/meus-favoritos" 
-                className={`transition-colors ${
+                className={`relative px-6 py-3 font-medium transition-all duration-200 ${
                   pathname === "/meus-favoritos" 
-                    ? "text-yellow-400 font-bold" 
-                    : "hover:text-yellow-400"
+                    ? "text-white bg-slate-800 border-b-2 border-blue-500" 
+                    : "text-gray-400 hover:text-white hover:bg-slate-800/50"
                 }`}
-                style={pathname === "/meus-favoritos" ? {textShadow: '0 0 8px #ffd700'} : {}}
               >
-                ⭐ Favoritos
+                Favoritos
+                {pathname === "/meus-favoritos" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
+                )}
               </Link>
             </li>
           )}
@@ -92,13 +100,16 @@ export default function Header() {
             <li>
               <Link 
                 href="/admin" 
-                className={`transition-all duration-300 ${
+                className={`relative px-6 py-3 font-medium transition-all duration-200 ${
                   pathname.startsWith("/admin") 
-                    ? "bg-purple-600 text-white font-bold px-4 py-2 rounded-lg shadow-[0_0_20px_#8b5cf6,0_0_40px_#8b5cf6] border-2 border-yellow-400" 
-                    : "hover:text-[#ff0033] text-white bg-red-500 px-2 py-1 rounded"
+                    ? "text-white bg-red-600 border-b-2 border-red-400" 
+                    : "text-gray-400 hover:text-white hover:bg-red-600/50"
                 }`}
               >
                 Admin
+                {pathname.startsWith("/admin") && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-400"></div>
+                )}
               </Link>
             </li>
           )}
@@ -166,45 +177,42 @@ export default function Header() {
               <Link 
                 href="/" 
                 onClick={() => setIsMenuOpen(false)}
-                className={`group flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 ${
+                className={`flex items-center justify-between py-4 px-4 transition-all duration-200 ${
                   pathname === "/" 
-                    ? "bg-gradient-to-r from-red-500/30 to-red-600/30 text-red-300 border border-red-500/50 shadow-lg" 
-                    : "hover:bg-white/10 hover:text-red-300 hover:translate-x-1"
+                    ? "bg-slate-800 text-white border-l-4 border-blue-500" 
+                    : "text-gray-400 hover:text-white hover:bg-slate-800/50"
                 }`}
-                style={pathname === "/" ? {textShadow: '0 0 12px #ff1744', boxShadow: '0 0 20px rgba(255, 23, 68, 0.3)'} : {}}
               >
-                <span className="text-lg">🏠</span>
-                <span className="font-semibold">Home</span>
+                <span className="font-medium">Home</span>
+                {pathname === "/" && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
               </Link>
             </li>
             <li>
               <Link 
                 href="/catalogo" 
                 onClick={() => setIsMenuOpen(false)}
-                className={`group flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 ${
+                className={`flex items-center justify-between py-4 px-4 transition-all duration-200 ${
                   pathname === "/catalogo" 
-                    ? "bg-gradient-to-r from-red-500/30 to-red-600/30 text-red-300 border border-red-500/50 shadow-lg" 
-                    : "hover:bg-white/10 hover:text-red-300 hover:translate-x-1"
+                    ? "bg-slate-800 text-white border-l-4 border-blue-500" 
+                    : "text-gray-400 hover:text-white hover:bg-slate-800/50"
                 }`}
-                style={pathname === "/catalogo" ? {textShadow: '0 0 12px #ff1744', boxShadow: '0 0 20px rgba(255, 23, 68, 0.3)'} : {}}
               >
-                <span className="text-lg">📚</span>
-                <span className="font-semibold">Catálogo</span>
+                <span className="font-medium">Catálogo</span>
+                {pathname === "/catalogo" && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
               </Link>
             </li>
             <li>
               <Link 
                 href="/lancamentos" 
                 onClick={() => setIsMenuOpen(false)}
-                className={`group flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 ${
+                className={`flex items-center justify-between py-4 px-4 transition-all duration-200 ${
                   pathname === "/lancamentos" 
-                    ? "bg-gradient-to-r from-red-500/30 to-red-600/30 text-red-300 border border-red-500/50 shadow-lg" 
-                    : "hover:bg-white/10 hover:text-red-300 hover:translate-x-1"
+                    ? "bg-slate-800 text-white border-l-4 border-blue-500" 
+                    : "text-gray-400 hover:text-white hover:bg-slate-800/50"
                 }`}
-                style={pathname === "/lancamentos" ? {textShadow: '0 0 12px #ff1744', boxShadow: '0 0 20px rgba(255, 23, 68, 0.3)'} : {}}
               >
-                <span className="text-lg">🆕</span>
-                <span className="font-semibold">Lançamentos</span>
+                <span className="font-medium">Lançamentos</span>
+                {pathname === "/lancamentos" && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
               </Link>
             </li>
             {user && (
@@ -212,15 +220,14 @@ export default function Header() {
                 <Link 
                   href="/meus-favoritos" 
                   onClick={() => setIsMenuOpen(false)}
-                  className={`group flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 ${
+                  className={`flex items-center justify-between py-4 px-4 transition-all duration-200 ${
                     pathname === "/meus-favoritos" 
-                      ? "bg-gradient-to-r from-yellow-500/30 to-yellow-600/30 text-yellow-300 border border-yellow-500/50 shadow-lg" 
-                      : "hover:bg-white/10 hover:text-yellow-300 hover:translate-x-1"
+                      ? "bg-slate-800 text-white border-l-4 border-blue-500" 
+                      : "text-gray-400 hover:text-white hover:bg-slate-800/50"
                   }`}
-                  style={pathname === "/meus-favoritos" ? {textShadow: '0 0 12px #ffd700', boxShadow: '0 0 20px rgba(255, 215, 0, 0.3)'} : {}}
                 >
-                  <span className="text-lg">⭐</span>
-                  <span className="font-semibold">Meus Favoritos</span>
+                  <span className="font-medium">Favoritos</span>
+                  {pathname === "/meus-favoritos" && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
                 </Link>
               </li>
             )}
@@ -229,15 +236,14 @@ export default function Header() {
                 <Link 
                   href="/admin" 
                   onClick={() => setIsMenuOpen(false)}
-                  className={`group flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 ${
+                  className={`flex items-center justify-between py-4 px-4 transition-all duration-200 ${
                     pathname.startsWith("/admin") 
-                      ? "bg-gradient-to-r from-purple-500/30 to-purple-600/30 text-purple-300 border border-purple-500/50 shadow-lg" 
-                      : "hover:bg-white/10 hover:text-purple-300 hover:translate-x-1"
+                      ? "bg-red-600 text-white border-l-4 border-red-400" 
+                      : "text-gray-400 hover:text-white hover:bg-red-600/50"
                   }`}
-                  style={pathname.startsWith("/admin") ? {textShadow: '0 0 12px #8b5cf6', boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)'} : {}}
                 >
-                  <span className="text-lg">⚙️</span>
-                  <span className="font-semibold">Admin</span>
+                  <span className="font-medium">Admin</span>
+                  {pathname.startsWith("/admin") && <div className="w-2 h-2 bg-red-400 rounded-full"></div>}
                 </Link>
               </li>
             )}
