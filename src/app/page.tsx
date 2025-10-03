@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useMangasPagination } from '@/hooks/useMangasPagination';
+import { useMangasCombinados } from '@/hooks/useMangasCombinados';
 import MangaCard from '@/components/MangaCard';
 import Pagination from '@/components/Pagination';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ export default function Home() {
     total,
     mudarPagina,
     limite
-  } = useMangasPagination(false);
+  } = useMangasCombinados();
 
   if (loading) {
     return (
