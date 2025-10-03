@@ -4,7 +4,7 @@ export const mockMangas: Manga[] = [
   {
     id: 1,
     titulo: "One Piece",
-    capa: "https://via.placeholder.com/300x400/ff1744/ffffff?text=One+Piece",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Eiichiro Oda",
     generos: ["Ação", "Aventura", "Comédia"],
@@ -14,7 +14,7 @@ export const mockMangas: Manga[] = [
   {
     id: 2,
     titulo: "Naruto",
-    capa: "https://via.placeholder.com/300x400/ff6b35/ffffff?text=Naruto",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Masashi Kishimoto",
     generos: ["Ação", "Ninja", "Shounen"],
@@ -24,7 +24,7 @@ export const mockMangas: Manga[] = [
   {
     id: 3,
     titulo: "Dragon Ball Z",
-    capa: "https://via.placeholder.com/300x400/ffd700/000000?text=Dragon+Ball",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Akira Toriyama",
     generos: ["Ação", "Super Poderes", "Shounen"],
@@ -34,7 +34,7 @@ export const mockMangas: Manga[] = [
   {
     id: 4,
     titulo: "Attack on Titan",
-    capa: "https://via.placeholder.com/300x400/2c3e50/ffffff?text=Attack+on+Titan",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Hajime Isayama",
     generos: ["Ação", "Drama", "Fantasia"],
@@ -44,7 +44,7 @@ export const mockMangas: Manga[] = [
   {
     id: 5,
     titulo: "Demon Slayer",
-    capa: "https://via.placeholder.com/300x400/8e44ad/ffffff?text=Demon+Slayer",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Koyoharu Gotouge",
     generos: ["Ação", "Sobrenatural", "Shounen"],
@@ -54,7 +54,7 @@ export const mockMangas: Manga[] = [
   {
     id: 6,
     titulo: "My Hero Academia",
-    capa: "https://via.placeholder.com/300x400/3498db/ffffff?text=My+Hero+Academia",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Kohei Horikoshi",
     generos: ["Ação", "Super Poderes", "Shounen"],
@@ -64,7 +64,7 @@ export const mockMangas: Manga[] = [
   {
     id: 7,
     titulo: "Jujutsu Kaisen",
-    capa: "https://via.placeholder.com/300x400/2ecc71/ffffff?text=Jujutsu+Kaisen",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Gege Akutami",
     generos: ["Ação", "Sobrenatural", "Shounen"],
@@ -74,7 +74,7 @@ export const mockMangas: Manga[] = [
   {
     id: 8,
     titulo: "Tokyo Ghoul",
-    capa: "https://via.placeholder.com/300x400/e74c3c/ffffff?text=Tokyo+Ghoul",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Sui Ishida",
     generos: ["Ação", "Horror", "Sobrenatural"],
@@ -84,7 +84,7 @@ export const mockMangas: Manga[] = [
   {
     id: 9,
     titulo: "Death Note",
-    capa: "https://via.placeholder.com/300x400/34495e/ffffff?text=Death+Note",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Tsugumi Ohba",
     generos: ["Suspense", "Psicológico", "Sobrenatural"],
@@ -94,7 +94,7 @@ export const mockMangas: Manga[] = [
   {
     id: 10,
     titulo: "Fullmetal Alchemist",
-    capa: "https://via.placeholder.com/300x400/f39c12/ffffff?text=Fullmetal+Alchemist",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Hiromu Arakawa",
     generos: ["Ação", "Aventura", "Fantasia"],
@@ -104,7 +104,7 @@ export const mockMangas: Manga[] = [
   {
     id: 11,
     titulo: "Hunter x Hunter",
-    capa: "https://via.placeholder.com/300x400/9b59b6/ffffff?text=Hunter+x+Hunter",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Yoshihiro Togashi",
     generos: ["Ação", "Aventura", "Shounen"],
@@ -114,7 +114,7 @@ export const mockMangas: Manga[] = [
   {
     id: 12,
     titulo: "Bleach",
-    capa: "https://via.placeholder.com/300x400/1abc9c/ffffff?text=Bleach",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Tite Kubo",
     generos: ["Ação", "Sobrenatural", "Shounen"],
@@ -124,7 +124,7 @@ export const mockMangas: Manga[] = [
   {
     id: 13,
     titulo: "One Punch Man",
-    capa: "https://via.placeholder.com/300x400/e67e22/ffffff?text=One+Punch+Man",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "ONE",
     generos: ["Ação", "Comédia", "Super Poderes"],
@@ -134,7 +134,7 @@ export const mockMangas: Manga[] = [
   {
     id: 14,
     titulo: "Mob Psycho 100",
-    capa: "https://via.placeholder.com/300x400/16a085/ffffff?text=Mob+Psycho+100",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "ONE",
     generos: ["Ação", "Comédia", "Sobrenatural"],
@@ -144,7 +144,7 @@ export const mockMangas: Manga[] = [
   {
     id: 15,
     titulo: "Chainsaw Man",
-    capa: "https://via.placeholder.com/300x400/c0392b/ffffff?text=Chainsaw+Man",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Tatsuki Fujimoto",
     generos: ["Ação", "Horror", "Sobrenatural"],
@@ -154,7 +154,7 @@ export const mockMangas: Manga[] = [
   {
     id: 16,
     titulo: "Spy x Family",
-    capa: "https://via.placeholder.com/300x400/27ae60/ffffff?text=Spy+x+Family",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Tatsuya Endo",
     generos: ["Comédia", "Ação", "Família"],
@@ -164,7 +164,7 @@ export const mockMangas: Manga[] = [
   {
     id: 17,
     titulo: "The Promised Neverland",
-    capa: "https://via.placeholder.com/300x400/8e44ad/ffffff?text=The+Promised+Neverland",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Kaiu Shirai",
     generos: ["Suspense", "Psicológico", "Fantasia"],
@@ -174,7 +174,7 @@ export const mockMangas: Manga[] = [
   {
     id: 18,
     titulo: "Dr. Stone",
-    capa: "https://via.placeholder.com/300x400/f1c40f/000000?text=Dr.+Stone",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Riichiro Inagaki",
     generos: ["Aventura", "Ciência", "Shounen"],
@@ -184,7 +184,7 @@ export const mockMangas: Manga[] = [
   {
     id: 19,
     titulo: "Black Clover",
-    capa: "https://via.placeholder.com/300x400/2c3e50/ffffff?text=Black+Clover",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Yuki Tabata",
     generos: ["Ação", "Fantasia", "Shounen"],
@@ -194,7 +194,7 @@ export const mockMangas: Manga[] = [
   {
     id: 20,
     titulo: "Fire Force",
-    capa: "https://via.placeholder.com/300x400/e74c3c/ffffff?text=Fire+Force",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Atsushi Ohkubo",
     generos: ["Ação", "Sobrenatural", "Shounen"],
@@ -204,7 +204,7 @@ export const mockMangas: Manga[] = [
   {
     id: 21,
     titulo: "Tokyo Revengers",
-    capa: "https://via.placeholder.com/300x400/9b59b6/ffffff?text=Tokyo+Revengers",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Ken Wakui",
     generos: ["Ação", "Drama", "Time Travel"],
@@ -214,7 +214,7 @@ export const mockMangas: Manga[] = [
   {
     id: 22,
     titulo: "Haikyuu!!",
-    capa: "https://via.placeholder.com/300x400/1abc9c/ffffff?text=Haikyuu",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Haruichi Furudate",
     generos: ["Esporte", "Drama", "Shounen"],
@@ -224,7 +224,7 @@ export const mockMangas: Manga[] = [
   {
     id: 23,
     titulo: "Kaguya-sama: Love is War",
-    capa: "https://via.placeholder.com/300x400/e91e63/ffffff?text=Kaguya-sama",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Aka Akasaka",
     generos: ["Romance", "Comédia", "Escolar"],
@@ -234,7 +234,7 @@ export const mockMangas: Manga[] = [
   {
     id: 24,
     titulo: "The Seven Deadly Sins",
-    capa: "https://via.placeholder.com/300x400/ff9800/ffffff?text=Seven+Deadly+Sins",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Nakaba Suzuki",
     generos: ["Ação", "Fantasia", "Aventura"],
@@ -244,7 +244,7 @@ export const mockMangas: Manga[] = [
   {
     id: 25,
     titulo: "Boruto: Naruto Next Generations",
-    capa: "https://via.placeholder.com/300x400/4caf50/ffffff?text=Boruto",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Masashi Kishimoto",
     generos: ["Ação", "Ninja", "Shounen"],
@@ -254,7 +254,7 @@ export const mockMangas: Manga[] = [
   {
     id: 26,
     titulo: "Solo Leveling",
-    capa: "https://via.placeholder.com/300x400/673ab7/ffffff?text=Solo+Leveling",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Chugong",
     generos: ["Ação", "Fantasia", "Sistema"],
@@ -264,7 +264,7 @@ export const mockMangas: Manga[] = [
   {
     id: 27,
     titulo: "Tower of God",
-    capa: "https://via.placeholder.com/300x400/ff5722/ffffff?text=Tower+of+God",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "SIU",
     generos: ["Ação", "Fantasia", "Aventura"],
@@ -274,7 +274,7 @@ export const mockMangas: Manga[] = [
   {
     id: 28,
     titulo: "The God of High School",
-    capa: "https://via.placeholder.com/300x400/795548/ffffff?text=God+of+High+School",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "concluido",
     autor: "Yongje Park",
     generos: ["Ação", "Artes Marciais", "Shounen"],
@@ -284,7 +284,7 @@ export const mockMangas: Manga[] = [
   {
     id: 29,
     titulo: "UnOrdinary",
-    capa: "https://via.placeholder.com/300x400/607d8b/ffffff?text=UnOrdinary",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "uru-chan",
     generos: ["Ação", "Super Poderes", "Escolar"],
@@ -294,7 +294,7 @@ export const mockMangas: Manga[] = [
   {
     id: 30,
     titulo: "Lookism",
-    capa: "https://via.placeholder.com/300x400/3f51b5/ffffff?text=Lookism",
+    capa: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format",
     status: "em_andamento",
     autor: "Taejun Pak",
     generos: ["Drama", "Escolar", "Slice of Life"],

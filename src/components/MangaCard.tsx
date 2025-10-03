@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Manga } from '@/types/manga';
 import FavoritoButton from './FavoritoButton';
+import MangaImageHybrid from './MangaImageHybrid';
 
 interface MangaCardProps {
   manga: Manga;
@@ -37,11 +38,13 @@ export default function MangaCard({ manga, showFavorito = true }: MangaCardProps
     <div className="bg-gradient-to-br from-black/40 to-black/20 backdrop-blur-sm border border-red-500/20 rounded-2xl overflow-hidden hover:border-red-500/40 transition-all duration-300 group hover:scale-105">
       <Link href={`/manga/${manga.id}`}>
         <div className="relative">
-          <img 
-            src={manga.capa} 
-            alt={manga.titulo}
-            className="w-full h-48 sm:h-56 md:h-64 object-cover"
-          />
+          <div className="w-full h-48 sm:h-56 md:h-64">
+            <MangaImageHybrid 
+              titulo={manga.titulo}
+              capa={manga.capa}
+              className="w-full h-full object-cover rounded-t-2xl"
+            />
+          </div>
           <div className="absolute top-2 right-2">
             <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(manga.status)}`}>
               {getStatusText(manga.status)}

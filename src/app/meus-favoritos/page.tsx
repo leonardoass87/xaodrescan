@@ -5,6 +5,7 @@ import { useFavoritos } from '@/hooks/useFavoritos';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
+import MangaImageHybrid from '@/components/MangaImageHybrid';
 
 export default function MeusFavoritos() {
   const { user, isLoading: authLoading } = useAuth();
@@ -103,11 +104,13 @@ export default function MeusFavoritos() {
               >
                 <Link href={`/manga/${favorito.manga_id}`}>
                   <div className="relative">
-                    <img 
-                      src={favorito.capa} 
-                      alt={favorito.titulo}
-                      className="w-full h-48 sm:h-56 object-cover"
-                    />
+                    <div className="w-full h-48 sm:h-56">
+                      <MangaImageHybrid 
+                        titulo={favorito.titulo}
+                        capa={favorito.capa}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div className="absolute top-2 right-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(favorito.status)}`}>
                         {getStatusText(favorito.status)}

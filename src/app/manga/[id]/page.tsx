@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import FavoritoButton from '@/components/FavoritoButton';
+import MangaImageHybrid from '@/components/MangaImageHybrid';
 import Link from 'next/link';
 
 interface Manga {
@@ -91,11 +92,13 @@ export default function MangaPage() {
           {/* Imagem e informações básicas */}
           <div className="lg:col-span-1">
             <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-2xl overflow-hidden">
-              <img 
-                src={manga.capa} 
-                alt={manga.titulo}
-                className="w-full h-96 object-cover"
-              />
+              <div className="w-full h-96">
+                <MangaImageHybrid 
+                  titulo={manga.titulo}
+                  capa={manga.capa}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div className="p-6">
                 <h1 className="text-2xl font-bold text-white mb-2">{manga.titulo}</h1>
                 <p className="text-gray-400 mb-4">por {manga.autor}</p>
