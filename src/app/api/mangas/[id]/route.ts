@@ -127,6 +127,7 @@ export async function GET(
       capitulos,
     };
 
+
     client.release();
     return NextResponse.json(manga);
   } catch (error) {

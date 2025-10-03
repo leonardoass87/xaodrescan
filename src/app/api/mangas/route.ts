@@ -22,8 +22,9 @@ async function salvarImagem(base64Data: string, nomeArquivo: string, subpasta: s
     const caminhoArquivo = path.join(uploadsDir, nomeArquivo);
     await writeFile(caminhoArquivo, buffer);
     
-    // Retornar URL relativa
-    return `/uploads/${subpasta}${subpasta ? '/' : ''}${nomeArquivo}`;
+    // Retornar URL relativa com /uploads/
+    const url = `/uploads/${subpasta}${subpasta ? '/' : ''}${nomeArquivo}`;
+    return url;
   } catch (error) {
     console.error('Erro ao salvar imagem:', error);
     throw error;

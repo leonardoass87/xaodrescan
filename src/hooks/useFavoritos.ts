@@ -116,8 +116,10 @@ export const useFavoritos = () => {
   // Carregar favoritos quando o usuário mudar
   useEffect(() => {
     if (user?.id) {
+      console.log('🔍 Carregando favoritos para usuário:', user.id);
       carregarFavoritos();
     } else {
+      console.log('🔍 Usuário não logado, limpando favoritos');
       setFavoritos([]);
     }
   }, [user?.id]);

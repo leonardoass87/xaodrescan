@@ -11,6 +11,7 @@ export async function GET(
     const filePath = pathArray.join('/');
     const fullPath = path.join(process.cwd(), 'uploads', filePath);
     
+    
     const file = await readFile(fullPath);
     
     // Determinar o tipo de conteúdo baseado na extensão
@@ -36,7 +37,9 @@ export async function GET(
     return new NextResponse(file as any, {
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000', // Cache por 1 ano
+        'Cache-Control': 'public, max-age=31536000, immutable', // Cache por 1 ano
+        'ETag': `"${Date.now()}"`, // ETag para cache eficiente
+        'Last-Modified': new Date().toUTCString(),
       },
     });
     

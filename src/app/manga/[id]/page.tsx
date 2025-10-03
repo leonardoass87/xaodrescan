@@ -64,6 +64,7 @@ export default function MangaPage() {
         
         const mangaData = await response.json();
         
+        
         // Converter formato da API para o formato do frontend
         const manga: Manga = {
           id: mangaData.id,
