@@ -43,7 +43,7 @@ export async function GET() {
       FROM mangas m
       LEFT JOIN capitulos c ON m.id = c.manga_id
       GROUP BY m.id
-      ORDER BY m.data_adicao DESC
+      ORDER BY m.id ASC
     `);
     
     client.release();
@@ -96,17 +96,17 @@ export async function POST(request: NextRequest) {
 
       const capituloId = capituloResult.rows[0].id;
 
-      // Salvar páginas do capítulo
+      // Salvar páginas do capítulo na ordem correta
       for (let i = 0; i < capitulo.paginas.length; i++) {
         const pagina = capitulo.paginas[i];
-        const extensaoPagina = pagina.includes('data:image/png') ? 'png' : 'jpg';
+        const extensaoPagina = pagina.preview.includes('data:image/png') ? 'png' : 'jpg';
         const nomePagina = `pagina_${capituloId}_${i + 1}_${timestamp}.${extensaoPagina}`;
-        const urlPagina = await salvarImagem(pagina, nomePagina, `capitulos/${capituloId}`);
+        const urlPagina = await salvarImagem(pagina.preview, nomePagina, `capitulos/${capituloId}`);
         
         await client.query(`
           INSERT INTO paginas (capitulo_id, numero, imagem, legenda)
           VALUES ($1, $2, $3, $4)
-        `, [capituloId, i + 1, urlPagina, `Página ${i + 1}`]);
+        `, [capituloId, i + 1, urlPagina, pagina.legenda || `Página ${i + 1}`]);
       }
 
       await client.query('COMMIT');

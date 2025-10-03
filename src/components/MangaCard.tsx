@@ -14,7 +14,7 @@ export default function MangaCard({ manga, showFavorito = true }: MangaCardProps
   const getStatusColor = (status: string) => {
     switch (status) {
       case "em_andamento": return "bg-green-500/20 text-green-300 border-green-500/30";
-      case "concluido": return "bg-blue-500/20 text-blue-300 border-blue-500/30";
+      case "completo": return "bg-blue-500/20 text-blue-300 border-blue-500/30";
       default: return "bg-gray-500/20 text-gray-300 border-gray-500/30";
     }
   };
@@ -22,7 +22,7 @@ export default function MangaCard({ manga, showFavorito = true }: MangaCardProps
   const getStatusText = (status: string) => {
     switch (status) {
       case "em_andamento": return "Em Andamento";
-      case "concluido": return "Concluído";
+      case "completo": return "Completo";
       default: return status;
     }
   };

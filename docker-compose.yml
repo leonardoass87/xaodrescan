@@ -12,6 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xaodrescan_user -d xaodrescan"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   frontend:
@@ -29,8 +34,24 @@ services:
       - USE_SSL=false
       - MANGA_PATH=/mangas                       # 👈 mesma variável no prod
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
+
+  # Serviço para inicialização do banco
+  db-init:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xaodrescan_db_init
+    environment:
+      - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
+      - USE_SSL=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["node", "scripts/auto-setup-db.js"]
+    restart: "no"
 
 volumes:
   postgres_data:

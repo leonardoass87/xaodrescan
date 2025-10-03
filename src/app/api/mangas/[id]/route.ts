@@ -102,17 +102,17 @@ export async function GET(
       return NextResponse.json({ error: 'Mangá não encontrado' }, { status: 404 });
     }
 
-    // Buscar capítulos
+    // Buscar capítulos ordenados numericamente
     const capitulosResult = await client.query(
-      `SELECT * FROM capitulos WHERE manga_id = $1 ORDER BY numero ASC`,
+      `SELECT * FROM capitulos WHERE manga_id = $1 ORDER BY numero::integer ASC`,
       [mangaId]
     );
 
-    // Para cada capítulo, buscar páginas
+    // Para cada capítulo, buscar páginas ordenadas numericamente
     const capitulos = [];
     for (const capitulo of capitulosResult.rows) {
       const paginasResult = await client.query(
-        `SELECT * FROM paginas WHERE capitulo_id = $1 ORDER BY numero ASC`,
+        `SELECT * FROM paginas WHERE capitulo_id = $1 ORDER BY numero::integer ASC`,
         [capitulo.id]
       );
 

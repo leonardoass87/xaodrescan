@@ -7,7 +7,11 @@
     "build": "next build --no-lint",
     "start": "next start",
     "lint": "eslint",
-    "setup-db": "node scripts/setup-db.js"
+    "setup-db": "node scripts/setup-db.js",
+    "setup-auto": "node scripts/auto-setup-db.js",
+    "health-check": "node scripts/docker-health-check.js",
+    "db-reset": "node scripts/reset-db.js",
+    "db-diagnose": "node scripts/diagnose-db.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

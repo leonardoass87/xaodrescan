@@ -2,11 +2,20 @@
 
 import React, { useState } from "react";
 import { useNotificationContext } from '@/contexts/NotificationContext';
+import PageManager from '@/components/PageManager';
 
 interface Pagina {
   id: number;
   numero: number;
   imagem: string;
+  legenda?: string;
+}
+
+interface PaginaUpload {
+  id: string;
+  file: File;
+  preview: string;
+  numero: number;
   legenda?: string;
 }
 
@@ -97,14 +106,14 @@ export default function MangasPage() {
   const [capituloAtual, setCapituloAtual] = useState({
     numero: 1,
     titulo: "",
-    paginas: [] as File[]
+    paginas: [] as PaginaUpload[]
   });
-  const [previewPaginas, setPreviewPaginas] = useState<string[]>([]);
   const [salvando, setSalvando] = useState(false);
 
   // Funções de ação dos botões
   const handleEditar = (manga: Manga) => {
-    info("Funcionalidade em Desenvolvimento", `Edição do mangá "${manga.titulo}" será implementada em breve.`);
+    // Navegar para a página de edição
+    window.location.href = `/admin/mangas/${manga.id}/editar`;
   };
 
   const handleDeletar = async (manga: Manga) => {
@@ -313,28 +322,62 @@ export default function MangasPage() {
         }
       }
 
-      setCapituloAtual(prev => ({ ...prev, paginas: files }));
-      
-      // Comprimir e criar previews
-      const previews: string[] = [];
+      // Criar objetos PaginaUpload com previews
+      const paginasComPreview: PaginaUpload[] = [];
       
       for (let i = 0; i < files.length; i++) {
         try {
-          const compressedBase64 = await comprimirImagem(files[i], 600, 0.8); // Páginas um pouco maiores
-          previews[i] = compressedBase64;
+          const compressedBase64 = await comprimirImagem(files[i], 600, 0.8);
+          paginasComPreview.push({
+            id: `pagina_${Date.now()}_${i}`,
+            file: files[i],
+            preview: compressedBase64,
+            numero: capituloAtual.paginas.length + i + 1,
+            legenda: ''
+          });
         } catch (err) {
           console.error('Erro ao comprimir página:', err);
           // Fallback para método original
           const reader = new FileReader();
           reader.onload = (e) => {
-            previews[i] = e.target?.result as string;
+            paginasComPreview.push({
+              id: `pagina_${Date.now()}_${i}`,
+              file: files[i],
+              preview: e.target?.result as string,
+              numero: capituloAtual.paginas.length + i + 1,
+              legenda: ''
+            });
           };
           reader.readAsDataURL(files[i]);
         }
       }
       
-      setPreviewPaginas(previews);
+      setCapituloAtual(prev => ({ 
+        ...prev, 
+        paginas: [...prev.paginas, ...paginasComPreview]
+      }));
     }
+  };
+
+  // Funções para gerenciar páginas
+  const handlePaginasUpdate = (novasPaginas: PaginaUpload[]) => {
+    setCapituloAtual(prev => ({ ...prev, paginas: novasPaginas }));
+  };
+
+  const handleRemovePagina = (id: string) => {
+    setCapituloAtual(prev => ({
+      ...prev,
+      paginas: prev.paginas.filter(p => p.id !== id)
+    }));
+  };
+
+  const handleUpdateLegenda = (id: string, legenda: string) => {
+    setCapituloAtual(prev => ({
+      ...prev,
+      paginas: prev.paginas.map(p => 
+        p.id === id ? { ...p, legenda } : p
+      )
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -358,8 +401,10 @@ export default function MangasPage() {
         capitulo: {
           numero: capituloAtual.numero,
           titulo: capituloAtual.titulo || `Capítulo ${capituloAtual.numero}`,
-          paginas: previewPaginas,
-          
+          paginas: capituloAtual.paginas.map(p => ({
+            preview: p.preview,
+            legenda: p.legenda || `Página ${p.numero}`
+          }))
         }
       };
       console.log("DEBUG (client):", mangaData);
@@ -397,7 +442,6 @@ export default function MangasPage() {
         paginas: []
       });
       setPreviewCapa(null);
-      setPreviewPaginas([]);
       setModalAberto(false);
       
       success('Mangá Criado', 'O mangá foi adicionado com sucesso!');
@@ -425,7 +469,6 @@ export default function MangasPage() {
       paginas: []
     });
     setPreviewCapa(null);
-    setPreviewPaginas([]);
   };
 
   if (carregando) {
@@ -859,7 +902,9 @@ export default function MangasPage() {
                   {/* Upload de Páginas */}
                   <div>
                     <label className="block text-white font-medium mb-2">Páginas do Capítulo *</label>
-                    <div className="border-2 border-dashed border-red-500/30 rounded-lg p-6 text-center hover:border-red-500/50 transition-colors bg-black/20">
+                    
+                    {/* Área de upload */}
+                    <div className="border-2 border-dashed border-red-500/30 rounded-lg p-6 text-center hover:border-red-500/50 transition-colors bg-black/20 mb-4">
                       <input
                         type="file"
                         accept="image/*"
@@ -869,30 +914,29 @@ export default function MangasPage() {
                         id="paginas-upload"
                       />
                       <label htmlFor="paginas-upload" className="cursor-pointer">
-                        {previewPaginas.length > 0 ? (
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                              {previewPaginas.map((preview, index) => (
-                                <img 
-                                  key={index}
-                                  src={preview} 
-                                  alt={`Página ${index + 1}`}
-                                  className="w-full h-32 object-cover rounded border border-red-500/30"
-                                />
-                              ))}
-                            </div>
-                            <p className="text-green-400">✓ {previewPaginas.length} página(s) selecionada(s)</p>
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            <div className="text-4xl text-red-500">📄</div>
-                            <p className="text-white">Clique para selecionar as páginas</p>
-                            <p className="text-gray-400 text-sm">PNG, JPG, JPEG (máx. 5MB cada)</p>
-                            <p className="text-gray-400 text-xs">Você pode selecionar múltiplas imagens</p>
-                          </div>
-                        )}
+                        <div className="space-y-2">
+                          <div className="text-4xl text-red-500">📄</div>
+                          <p className="text-white">
+                            {capituloAtual.paginas.length > 0 
+                              ? 'Adicionar mais páginas' 
+                              : 'Clique para selecionar as páginas'
+                            }
+                          </p>
+                          <p className="text-gray-400 text-sm">PNG, JPG, JPEG (máx. 10MB cada)</p>
+                          <p className="text-gray-400 text-xs">Você pode selecionar múltiplas imagens</p>
+                        </div>
                       </label>
                     </div>
+
+                    {/* Gerenciador de Páginas */}
+                    {capituloAtual.paginas.length > 0 && (
+                      <PageManager
+                        paginas={capituloAtual.paginas}
+                        onPaginasChange={handlePaginasUpdate}
+                        onRemove={handleRemovePagina}
+                        onUpdateLegenda={handleUpdateLegenda}
+                      />
+                    )}
                   </div>
                 </div>
 

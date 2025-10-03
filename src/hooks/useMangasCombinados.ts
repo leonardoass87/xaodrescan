@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Manga } from '@/types/manga';
-import { carregarMangas } from '@/data/mockMangas';
 import { useScreenSize } from './useScreenSize';
 
 export const useMangasCombinados = () => {
@@ -45,37 +44,17 @@ export const useMangasCombinados = () => {
     }
   };
 
-  // Função para combinar dados reais + mockados
-  const combinarDados = async (pagina: number, limite: number) => {
+  // Função para carregar apenas dados reais da API
+  const carregarDadosReais = async (pagina: number, limite: number) => {
     setLoading(true);
     setError(null);
     
     try {
-      let todosMangas: Manga[] = [];
-      
-      // Buscar mangás reais (sempre primeiro)
-      try {
-        const mangasReais = await buscarMangasReais();
-        console.log('Mangás reais encontrados:', mangasReais.length);
-        todosMangas = [...mangasReais];
-      } catch (error) {
-        console.log('Erro ao buscar mangás reais, usando apenas mockados:', error);
-      }
-      
-      // Buscar mangás mockados
-      try {
-        const mockadosResponse = await carregarMangas(1, 1000);
-        const mangasMockados = mockadosResponse?.mangas || [];
-        console.log('Mangás mockados encontrados:', mangasMockados.length);
-        todosMangas = [...todosMangas, ...mangasMockados];
-      } catch (error) {
-        console.log('Erro ao buscar mangás mockados:', error);
-      }
-      
-      console.log('Total de mangás combinados:', todosMangas.length);
+      const mangasReais = await buscarMangasReais();
+      console.log('Mangás reais encontrados:', mangasReais.length);
       
       // Ordenar por data de adição (mais recentes primeiro)
-      todosMangas.sort((a, b) => {
+      mangasReais.sort((a, b) => {
         const dataA = new Date(a.dataAdicao || '2024-01-01').getTime();
         const dataB = new Date(b.dataAdicao || '2024-01-01').getTime();
         return dataB - dataA; // Mais recente primeiro
@@ -84,16 +63,16 @@ export const useMangasCombinados = () => {
       // Aplicar paginação
       const inicio = (pagina - 1) * limite;
       const fim = inicio + limite;
-      const mangasPagina = todosMangas.slice(inicio, fim);
+      const mangasPagina = mangasReais.slice(inicio, fim);
       
       setMangas(mangasPagina);
       setPaginaAtual(pagina);
-      setTotalPaginas(Math.ceil(todosMangas.length / limite));
-      setTotal(todosMangas.length);
+      setTotalPaginas(Math.ceil(mangasReais.length / limite));
+      setTotal(mangasReais.length);
       
     } catch (err) {
       setError('Erro ao carregar mangás');
-      console.error('Erro ao combinar dados:', err);
+      console.error('Erro ao carregar dados reais:', err);
     } finally {
       setLoading(false);
     }
@@ -101,23 +80,23 @@ export const useMangasCombinados = () => {
 
   const mudarPagina = useCallback((novaPagina: number) => {
     if (novaPagina >= 1 && novaPagina <= totalPaginas && novaPagina !== paginaAtual) {
-      combinarDados(novaPagina, getLimite());
+      carregarDadosReais(novaPagina, getLimite());
     }
   }, [totalPaginas, paginaAtual, getLimite]);
 
   const recarregar = useCallback(() => {
-    combinarDados(paginaAtual, getLimite());
+    carregarDadosReais(paginaAtual, getLimite());
   }, [paginaAtual, getLimite]);
 
   // Carregar mangás iniciais
   useEffect(() => {
-    combinarDados(1, getLimite());
+    carregarDadosReais(1, getLimite());
   }, [getLimite]);
 
   // Recarregar quando o tamanho da tela mudar (para ajustar limite)
   useEffect(() => {
     if (paginaAtual > 1) {
-      combinarDados(1, getLimite());
+      carregarDadosReais(1, getLimite());
     }
   }, [isMobile, isTablet]);
 

@@ -95,16 +95,20 @@ export default function Home() {
         {/* Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold text-red-500 mb-2">500+</div>
+            <div className="text-3xl font-bold text-red-500 mb-2">{total}</div>
             <div className="text-gray-300">Mangás Disponíveis</div>
           </div>
           <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold text-red-500 mb-2">10K+</div>
-            <div className="text-gray-300">Usuários Ativos</div>
+            <div className="text-3xl font-bold text-red-500 mb-2">
+              {mangas.filter(m => m.status === 'em_andamento').length}
+            </div>
+            <div className="text-gray-300">Em Andamento</div>
           </div>
           <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold text-red-500 mb-2">1M+</div>
-            <div className="text-gray-300">Páginas Lidas</div>
+            <div className="text-3xl font-bold text-red-500 mb-2">
+              {mangas.filter(m => m.status === 'completo').length}
+            </div>
+            <div className="text-gray-300">Completos</div>
           </div>
         </div>
 

@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Manga, MangasResponse } from '@/types/manga';
-import { carregarMangas } from '@/data/mockMangas';
 import { carregarMangasAPI } from '@/services/mangaService';
 import { useScreenSize } from './useScreenSize';
 
-export const useMangasPagination = (usarAPI: boolean = false) => {
+export const useMangasPagination = (usarAPI: boolean = true) => {
   const { isMobile, isTablet, isDesktop } = useScreenSize();
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [loading, setLoading] = useState(false);
@@ -20,13 +19,9 @@ export const useMangasPagination = (usarAPI: boolean = false) => {
     return 20; // Desktop
   }, [isMobile, isTablet]);
 
-  // Função para carregar dados (mock ou API)
+  // Função para carregar dados da API
   const carregarDados = async (pagina: number, limite: number) => {
-    if (usarAPI) {
-      return await carregarMangasAPI(pagina, limite);
-    } else {
-      return await carregarMangas(pagina, limite);
-    }
+    return await carregarMangasAPI(pagina, limite);
   };
 
   const carregarMangasPagina = useCallback(async (pagina: number) => {

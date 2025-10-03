@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Manga, MangasResponse } from '@/types/manga';
-import { carregarMangas } from '@/data/mockMangas';
 import { carregarMangasAPI } from '@/services/mangaService';
 
-export const useMangas = (limiteInicial: number = 12, usarAPI: boolean = false) => {
+export const useMangas = (limiteInicial: number = 12, usarAPI: boolean = true) => {
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -12,13 +11,9 @@ export const useMangas = (limiteInicial: number = 12, usarAPI: boolean = false) 
   const [temMais, setTemMais] = useState(true);
   const [total, setTotal] = useState(0);
 
-  // Função para carregar dados (mock ou API)
+  // Função para carregar dados da API
   const carregarDados = async (paginaAtual: number, limite: number) => {
-    if (usarAPI) {
-      return await carregarMangasAPI(paginaAtual, limite);
-    } else {
-      return await carregarMangas(paginaAtual, limite);
-    }
+    return await carregarMangasAPI(paginaAtual, limite);
   };
 
   const carregarMangasInicial = useCallback(async () => {
