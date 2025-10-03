@@ -440,39 +440,40 @@ export default function MangasPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 p-4 md:p-0">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">Gerenciar Mangás</h1>
-          <p className="text-gray-400 mt-1">Administre todo o catálogo de mangás</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">Gerenciar Mangás</h1>
+          <p className="text-gray-400 mt-1 text-sm md:text-base">Administre todo o catálogo de mangás</p>
         </div>
         <button 
           onClick={() => setModalAberto(true)}
-          className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center"
+          className="bg-red-500 hover:bg-red-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center text-sm md:text-base"
         >
           <span className="mr-2">➕</span>
-          Novo Mangá
+          <span className="hidden sm:inline">Novo Mangá</span>
+          <span className="sm:hidden">Novo</span>
         </button>
       </div>
 
       {/* Filtros e Controles */}
-      <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6">
-        <div className="flex flex-col lg:flex-row gap-4 items-center">
+      <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-4 md:p-6">
+        <div className="flex flex-col lg:flex-row gap-3 md:gap-4 items-center">
           <div className="flex-1 w-full">
             <input
               type="text"
               placeholder="Buscar por título ou autor..."
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
-              className="w-full bg-black/50 border border-red-500/30 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none transition-colors"
+              className="w-full bg-black/50 border border-red-500/30 rounded-lg px-3 md:px-4 py-2 md:py-3 text-white placeholder-gray-400 focus:border-red-500 focus:outline-none transition-colors text-sm md:text-base"
             />
           </div>
           <div className="flex gap-2 w-full lg:w-auto">
             <select 
               value={statusFiltro}
               onChange={(e) => setStatusFiltro(e.target.value)}
-              className="bg-black/50 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none"
+              className="bg-black/50 border border-red-500/30 rounded-lg px-3 md:px-4 py-2 md:py-3 text-white focus:border-red-500 focus:outline-none text-sm md:text-base flex-1 lg:flex-none"
             >
               <option value="">Todos os status</option>
               <option value="em_andamento">Em Andamento</option>
@@ -482,21 +483,23 @@ export default function MangasPage() {
             <div className="flex border border-red-500/30 rounded-lg overflow-hidden">
               <button
                 onClick={() => setVisualizacao("grid")}
-                className={`px-4 py-3 transition-colors ${
+                className={`px-3 md:px-4 py-2 md:py-3 transition-colors text-sm md:text-base ${
                   visualizacao === "grid" 
                     ? "bg-red-500/20 text-red-300" 
                     : "bg-black/50 text-gray-400 hover:text-white"
                 }`}
+                title="Visualização em grade"
               >
                 ⊞
               </button>
               <button
                 onClick={() => setVisualizacao("lista")}
-                className={`px-4 py-3 transition-colors ${
+                className={`px-3 md:px-4 py-2 md:py-3 transition-colors text-sm md:text-base ${
                   visualizacao === "lista" 
                     ? "bg-red-500/20 text-red-300" 
                     : "bg-black/50 text-gray-400 hover:text-white"
                 }`}
+                title="Visualização em lista"
               >
                 ☰
               </button>
@@ -507,64 +510,64 @@ export default function MangasPage() {
 
       {/* Grid de Mangás */}
       {visualizacao === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
           {mangasFiltrados.map((manga) => (
-            <div key={manga.id} className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl overflow-hidden hover:border-red-500/40 transition-all duration-300 group">
+            <div key={manga.id} className="bg-gradient-to-br from-black/40 to-black/20 backdrop-blur-sm border border-red-500/20 rounded-2xl overflow-hidden hover:border-red-500/40 transition-all duration-300 group hover:scale-105">
               <div className="relative">
                 <img 
                   src={manga.capa} 
                   alt={manga.titulo}
-                  className="w-full h-64 object-cover"
+                  className="w-full h-32 sm:h-40 md:h-48 object-cover"
                 />
-                <div className="absolute top-3 right-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(manga.status)}`}>
-                    {getStatusText(manga.status)}
+                <div className="absolute top-1 right-1">
+                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(manga.status)}`}>
+                    {getStatusText(manga.status).slice(0, 3)}
                   </span>
                 </div>
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div className="flex gap-2">
+                  <div className="flex gap-1">
                     <button 
                       onClick={() => handleEditar(manga)}
-                      className="bg-blue-500/80 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors"
-                      title="Editar mangá"
+                      className="bg-blue-500/90 hover:bg-blue-500 text-white p-1.5 rounded-lg transition-colors text-sm"
+                      title="Editar"
                     >
                       ✏️
                     </button>
                     <button 
                       onClick={() => handleDeletar(manga)}
-                      className="bg-red-500/80 hover:bg-red-500 text-white p-2 rounded-lg transition-colors"
-                      title="Deletar mangá"
+                      className="bg-red-500/90 hover:bg-red-500 text-white p-1.5 rounded-lg transition-colors text-sm"
+                      title="Deletar"
                     >
                       🗑️
                     </button>
                     <button 
                       onClick={() => handleVisualizar(manga)}
-                      className="bg-gray-500/80 hover:bg-gray-500 text-white p-2 rounded-lg transition-colors"
-                      title="Visualizar mangá"
+                      className="bg-gray-500/90 hover:bg-gray-500 text-white p-1.5 rounded-lg transition-colors text-sm"
+                      title="Ver"
                     >
                       👁️
                     </button>
                   </div>
                 </div>
               </div>
-              <div className="p-4">
-                <h3 className="text-white font-bold text-lg mb-1 truncate">{manga.titulo}</h3>
-                <p className="text-gray-400 text-sm mb-2">{manga.autor}</p>
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {(manga.generos || []).slice(0, 2).map((genero, index) => (
-                    <span key={index} className="bg-red-500/20 text-red-300 px-2 py-1 rounded text-xs">
+              <div className="p-2 md:p-3">
+                <h3 className="text-white font-bold text-sm md:text-base mb-1 truncate">{manga.titulo}</h3>
+                <p className="text-gray-400 text-xs mb-2 truncate">{manga.autor}</p>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {(manga.generos || []).slice(0, 1).map((genero, index) => (
+                    <span key={index} className="bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded text-xs">
                       {genero}
                     </span>
                   ))}
-                  {(manga.generos || []).length > 2 && (
-                    <span className="bg-gray-500/20 text-gray-300 px-2 py-1 rounded text-xs">
-                      +{(manga.generos || []).length - 2}
+                  {(manga.generos || []).length > 1 && (
+                    <span className="bg-gray-500/20 text-gray-300 px-1.5 py-0.5 rounded text-xs">
+                      +{(manga.generos || []).length - 1}
                     </span>
                   )}
                 </div>
-                <div className="flex justify-between text-sm text-gray-400">
-                  <span>{manga.capitulos?.length || 0} caps</span>
-                  <span>{formatarVisualizacoes(manga.visualizacoes || 0)} views</span>
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>📖 {manga.capitulos?.length || 0}</span>
+                  <span>👁️ {formatarVisualizacoes(manga.visualizacoes || 0)}</span>
                 </div>
               </div>
             </div>
@@ -577,55 +580,55 @@ export default function MangasPage() {
             <table className="w-full">
               <thead className="bg-red-500/10 border-b border-red-500/20">
                 <tr>
-                  <th className="text-left p-4 text-gray-300 font-medium">Mangá</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Autor</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Status</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Capítulos</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Visualizações</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Data</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Ações</th>
+                  <th className="text-left p-2 md:p-4 text-gray-300 font-medium text-xs md:text-sm">Mangá</th>
+                  <th className="text-left p-2 md:p-4 text-gray-300 font-medium text-xs md:text-sm hidden sm:table-cell">Autor</th>
+                  <th className="text-left p-2 md:p-4 text-gray-300 font-medium text-xs md:text-sm">Status</th>
+                  <th className="text-left p-2 md:p-4 text-gray-300 font-medium text-xs md:text-sm hidden md:table-cell">Capítulos</th>
+                  <th className="text-left p-2 md:p-4 text-gray-300 font-medium text-xs md:text-sm hidden lg:table-cell">Visualizações</th>
+                  <th className="text-left p-2 md:p-4 text-gray-300 font-medium text-xs md:text-sm hidden xl:table-cell">Data</th>
+                  <th className="text-left p-2 md:p-4 text-gray-300 font-medium text-xs md:text-sm">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {mangasFiltrados.map((manga) => (
                   <tr key={manga.id} className="border-b border-red-500/10 hover:bg-red-500/5 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <img src={manga.capa} alt={manga.titulo} className="w-12 h-16 object-cover rounded" />
-                        <div>
-                          <div className="text-white font-medium">{manga.titulo}</div>
-                          <div className="text-gray-400 text-sm">{(manga.generos || []).join(", ")}</div>
+                    <td className="p-2 md:p-4">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <img src={manga.capa} alt={manga.titulo} className="w-8 h-10 md:w-12 md:h-16 object-cover rounded" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-white font-medium text-sm md:text-base truncate">{manga.titulo}</div>
+                          <div className="text-gray-400 text-xs md:text-sm truncate">{(manga.generos || []).slice(0, 2).join(", ")}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 text-gray-300">{manga.autor}</td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(manga.status)}`}>
+                    <td className="p-2 md:p-4 text-gray-300 text-xs md:text-sm hidden sm:table-cell truncate">{manga.autor}</td>
+                    <td className="p-2 md:p-4">
+                      <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(manga.status)}`}>
                         {getStatusText(manga.status)}
                       </span>
                     </td>
-                    <td className="p-4 text-gray-300">{manga.capitulos?.length || 0}</td>
-                    <td className="p-4 text-gray-300">{formatarVisualizacoes(manga.visualizacoes)}</td>
-                    <td className="p-4 text-gray-300">{new Date(manga.dataAdicao).toLocaleDateString('pt-BR')}</td>
-                    <td className="p-4">
-                      <div className="flex gap-2">
+                    <td className="p-2 md:p-4 text-gray-300 text-xs md:text-sm hidden md:table-cell">{manga.capitulos?.length || 0}</td>
+                    <td className="p-2 md:p-4 text-gray-300 text-xs md:text-sm hidden lg:table-cell">{formatarVisualizacoes(manga.visualizacoes)}</td>
+                    <td className="p-2 md:p-4 text-gray-300 text-xs md:text-sm hidden xl:table-cell">{new Date(manga.dataAdicao).toLocaleDateString('pt-BR')}</td>
+                    <td className="p-2 md:p-4">
+                      <div className="flex gap-1 md:gap-2">
                         <button 
                           onClick={() => handleEditar(manga)}
-                          className="text-blue-400 hover:text-blue-300 p-2 hover:bg-blue-500/10 rounded transition-colors"
+                          className="text-blue-400 hover:text-blue-300 p-1 md:p-2 hover:bg-blue-500/10 rounded transition-colors text-sm md:text-base"
                           title="Editar mangá"
                         >
                           ✏️
                         </button>
                         <button 
                           onClick={() => handleDeletar(manga)}
-                          className="text-red-400 hover:text-red-300 p-2 hover:bg-red-500/10 rounded transition-colors"
+                          className="text-red-400 hover:text-red-300 p-1 md:p-2 hover:bg-red-500/10 rounded transition-colors text-sm md:text-base"
                           title="Deletar mangá"
                         >
                           🗑️
                         </button>
                         <button 
                           onClick={() => handleVisualizar(manga)}
-                          className="text-gray-400 hover:text-gray-300 p-2 hover:bg-gray-500/10 rounded transition-colors"
+                          className="text-gray-400 hover:text-gray-300 p-1 md:p-2 hover:bg-gray-500/10 rounded transition-colors text-sm md:text-base"
                           title="Visualizar mangá"
                         >
                           👁️
@@ -641,22 +644,22 @@ export default function MangasPage() {
       )}
 
       {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-          <div className="text-2xl font-bold text-white">{mangas.length}</div>
-          <div className="text-gray-400 text-sm">Total de Mangás</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+        <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-3 md:p-6 text-center">
+          <div className="text-lg md:text-2xl font-bold text-white">{mangas.length}</div>
+          <div className="text-gray-400 text-xs md:text-sm">Total de Mangás</div>
         </div>
-        <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-          <div className="text-2xl font-bold text-green-400">{mangas.filter(m => m.status === 'em_andamento').length}</div>
-          <div className="text-gray-400 text-sm">Em Andamento</div>
+        <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-3 md:p-6 text-center">
+          <div className="text-lg md:text-2xl font-bold text-green-400">{mangas.filter(m => m.status === 'em_andamento').length}</div>
+          <div className="text-gray-400 text-xs md:text-sm">Em Andamento</div>
         </div>
-        <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-          <div className="text-2xl font-bold text-blue-400">{mangas.filter(m => m.status === 'completo').length}</div>
-          <div className="text-gray-400 text-sm">Completos</div>
+        <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-3 md:p-6 text-center">
+          <div className="text-lg md:text-2xl font-bold text-blue-400">{mangas.filter(m => m.status === 'completo').length}</div>
+          <div className="text-gray-400 text-xs md:text-sm">Completos</div>
         </div>
-        <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-          <div className="text-2xl font-bold text-red-400">{mangas.reduce((acc, m) => acc + (m.capitulos?.length || 0), 0)}</div>
-          <div className="text-gray-400 text-sm">Total Capítulos</div>
+        <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-3 md:p-6 text-center">
+          <div className="text-lg md:text-2xl font-bold text-red-400">{mangas.reduce((acc, m) => acc + (m.capitulos?.length || 0), 0)}</div>
+          <div className="text-gray-400 text-xs md:text-sm">Total Capítulos</div>
         </div>
       </div>
 
