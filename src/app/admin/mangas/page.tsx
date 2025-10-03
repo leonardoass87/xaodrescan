@@ -524,7 +524,8 @@ export default function MangasPage() {
                     {getStatusText(manga.status).slice(0, 3)}
                   </span>
                 </div>
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                {/* Botões de ação apenas em desktop */}
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center hidden md:flex">
                   <div className="flex gap-1">
                     <button 
                       onClick={() => handleEditar(manga)}
@@ -568,6 +569,28 @@ export default function MangasPage() {
                 <div className="flex justify-between text-xs text-gray-400">
                   <span>📖 {manga.capitulos?.length || 0}</span>
                   <span>👁️ {formatarVisualizacoes(manga.visualizacoes || 0)}</span>
+                </div>
+                
+                {/* Botões de ação para mobile */}
+                <div className="flex gap-1 mt-2 md:hidden">
+                  <button 
+                    onClick={() => handleEditar(manga)}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-2 rounded text-xs font-medium transition-colors"
+                  >
+                    ✏️ Editar
+                  </button>
+                  <button 
+                    onClick={() => handleVisualizar(manga)}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-1.5 px-2 rounded text-xs font-medium transition-colors"
+                  >
+                    👁️ Ver
+                  </button>
+                  <button 
+                    onClick={() => handleDeletar(manga)}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-1.5 px-2 rounded text-xs font-medium transition-colors"
+                  >
+                    🗑️ Deletar
+                  </button>
                 </div>
               </div>
             </div>
@@ -660,6 +683,50 @@ export default function MangasPage() {
         <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-3 md:p-6 text-center">
           <div className="text-lg md:text-2xl font-bold text-red-400">{mangas.reduce((acc, m) => acc + (m.capitulos?.length || 0), 0)}</div>
           <div className="text-gray-400 text-xs md:text-sm">Total Capítulos</div>
+        </div>
+      </div>
+
+      {/* Ações Rápidas */}
+      <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-4 md:p-6">
+        <h3 className="text-lg font-bold text-white mb-4">⚡ Ações Rápidas</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <button 
+            onClick={() => setModalAberto(true)}
+            className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <span>➕</span>
+            <span className="text-sm font-medium">Novo Mangá</span>
+          </button>
+          
+          <button 
+            onClick={() => {
+              info('Em Desenvolvimento', 'Funcionalidade de importação em massa será implementada em breve!');
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <span>📥</span>
+            <span className="text-sm font-medium">Importar em Massa</span>
+          </button>
+          
+          <button 
+            onClick={() => {
+              info('Em Desenvolvimento', 'Funcionalidade de backup será implementada em breve!');
+            }}
+            className="bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <span>💾</span>
+            <span className="text-sm font-medium">Backup</span>
+          </button>
+          
+          <button 
+            onClick={() => {
+              info('Em Desenvolvimento', 'Funcionalidade de relatórios será implementada em breve!');
+            }}
+            className="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <span>📊</span>
+            <span className="text-sm font-medium">Relatórios</span>
+          </button>
         </div>
       </div>
 
