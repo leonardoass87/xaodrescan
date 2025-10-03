@@ -47,6 +47,14 @@ export async function GET(
         [capId]
       );
 
+      // Buscar próximo capítulo
+      const proximoCapituloResult = await client.query(
+        `SELECT id, numero, titulo FROM capitulos 
+         WHERE manga_id = $1 AND numero > $2 
+         ORDER BY numero ASC 
+         LIMIT 1`,
+        [mangaId, capituloResult.rows[0].numero]
+      );
 
       const manga = mangaResult.rows[0];
       const capitulo = {
@@ -54,10 +62,13 @@ export async function GET(
         paginas: paginasResult.rows
       };
 
+      const proximoCapitulo = proximoCapituloResult.rows.length > 0 ? proximoCapituloResult.rows[0] : null;
+
 
       const response = NextResponse.json({
         manga,
-        capitulo
+        capitulo,
+        proximoCapitulo
       });
 
       response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');

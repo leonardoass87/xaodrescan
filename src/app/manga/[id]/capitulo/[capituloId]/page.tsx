@@ -42,6 +42,7 @@ export default function LeitorPage() {
   const [zoom, setZoom] = useState(1);
   const [showControls, setShowControls] = useState(true);
   const [loadingImages, setLoadingImages] = useState<Set<number>>(new Set());
+  const [proximoCapitulo, setProximoCapitulo] = useState<any>(null);
 
   // Handlers para carregamento de imagens
   const handleImageLoad = (paginaId: number) => {
@@ -87,6 +88,7 @@ export default function LeitorPage() {
         });
 
         setCapitulo(data.capitulo);
+        setProximoCapitulo(data.proximoCapitulo);
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
         setError('Erro ao carregar o capítulo');
@@ -345,6 +347,35 @@ export default function LeitorPage() {
                 </div>
               </div>
             ))}
+            
+            {/* Botões de navegação no final */}
+            <div className="w-full flex justify-center mt-8 mb-8">
+              <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-6 max-w-2xl w-full">
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold text-white mb-2">🎉 Capítulo Concluído!</h3>
+                  <p className="text-gray-300">
+                    {proximoCapitulo ? 'Pronto para continuar a leitura?' : 'Este foi o último capítulo disponível.'}
+                  </p>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link
+                    href={`/manga/${params.id}`}
+                    className="flex-1 bg-gray-700 text-white font-medium px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors text-center flex items-center justify-center gap-2"
+                  >
+                    📖 Voltar ao Mangá
+                  </Link>
+                  {proximoCapitulo && (
+                    <Link
+                      href={`/manga/${params.id}/capitulo/${proximoCapitulo.id}`}
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all text-center flex items-center justify-center gap-2"
+                    >
+                      ➡️ Próximo Capítulo {proximoCapitulo.numero}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
