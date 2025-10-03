@@ -73,6 +73,21 @@ export default function Header() {
               Lançamentos
             </Link>
           </li>
+          {user && (
+            <li>
+              <Link 
+                href="/meus-favoritos" 
+                className={`transition-colors ${
+                  pathname === "/meus-favoritos" 
+                    ? "text-yellow-400 font-bold" 
+                    : "hover:text-yellow-400"
+                }`}
+                style={pathname === "/meus-favoritos" ? {textShadow: '0 0 8px #ffd700'} : {}}
+              >
+                ⭐ Favoritos
+              </Link>
+            </li>
+          )}
           {!isLoading && isAdmin() && (
             <li>
               <Link 
@@ -192,6 +207,23 @@ export default function Header() {
                 <span className="font-semibold">Lançamentos</span>
               </Link>
             </li>
+            {user && (
+              <li>
+                <Link 
+                  href="/meus-favoritos" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`group flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-300 ${
+                    pathname === "/meus-favoritos" 
+                      ? "bg-gradient-to-r from-yellow-500/30 to-yellow-600/30 text-yellow-300 border border-yellow-500/50 shadow-lg" 
+                      : "hover:bg-white/10 hover:text-yellow-300 hover:translate-x-1"
+                  }`}
+                  style={pathname === "/meus-favoritos" ? {textShadow: '0 0 12px #ffd700', boxShadow: '0 0 20px rgba(255, 215, 0, 0.3)'} : {}}
+                >
+                  <span className="text-lg">⭐</span>
+                  <span className="font-semibold">Meus Favoritos</span>
+                </Link>
+              </li>
+            )}
             {!isLoading && isAdmin() && (
               <li>
                 <Link 
