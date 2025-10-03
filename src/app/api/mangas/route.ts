@@ -89,9 +89,9 @@ export async function POST(request: NextRequest) {
       // Inserir capítulo
       const capituloResult = await client.query(`
         INSERT INTO capitulos (manga_id, numero, titulo, data_publicacao)
-        VALUES ($1, $2, $3, $4)
+        VALUES ($1, $2, $3, NOW())
         RETURNING id
-      `, [mangaId, capitulo.numero, capitulo.titulo || `Capítulo ${capitulo.numero}`, new Date().toISOString().split('T')[0]]);
+      `, [mangaId, capitulo.numero, capitulo.titulo || `Capítulo ${capitulo.numero}`]);
 
       const capituloId = capituloResult.rows[0].id;
 

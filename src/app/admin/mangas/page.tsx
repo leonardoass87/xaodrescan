@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useNotificationContext } from '@/contexts/NotificationContext';
 
 interface Pagina {
   id: number;
@@ -78,6 +79,7 @@ const mangasExemplo: Manga[] = [
 ];
 
 export default function MangasPage() {
+  const { success, error, warning, info } = useNotificationContext();
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [filtro, setFiltro] = useState("");
   const [statusFiltro, setStatusFiltro] = useState("");
@@ -102,7 +104,7 @@ export default function MangasPage() {
 
   // Funções de ação dos botões
   const handleEditar = (manga: Manga) => {
-    alert(`Editar mangá: ${manga.titulo}\n\nFuncionalidade em desenvolvimento!`);
+    info("Funcionalidade em Desenvolvimento", `Edição do mangá "${manga.titulo}" será implementada em breve.`);
   };
 
   const handleDeletar = async (manga: Manga) => {
@@ -110,12 +112,8 @@ export default function MangasPage() {
       try {
         console.log('Tentando deletar mangá ID:', manga.id);
         
-        // Testar primeiro o endpoint de teste
-        const testResponse = await fetch('/api/test-delete', { method: 'DELETE' });
-        console.log('Test DELETE status:', testResponse.status);
-        
-        // Usar a nova API de delete
-        const response = await fetch(`/api/mangas/delete?id=${manga.id}`, {
+        // Deletar mangá usando API RESTful
+        const response = await fetch(`/api/mangas/${manga.id}`, {
           method: 'DELETE'
         });
         
@@ -125,22 +123,22 @@ export default function MangasPage() {
         if (response.ok) {
           const result = await response.json();
           console.log('Resultado da API:', result);
-          alert('Mangá deletado com sucesso!');
+          success('Mangá Deletado', 'O mangá foi removido com sucesso!');
           await carregarMangas(); // Recarregar lista
         } else {
           const errorText = await response.text();
           console.error('Erro na resposta:', errorText);
-          alert(`Erro ao deletar mangá: ${response.status} - ${errorText}`);
+          error('Erro ao Deletar', `Falha na remoção do mangá: ${response.status}`);
         }
-      } catch (error) {
-        console.error('Erro ao deletar mangá:', error);
-        alert('Erro ao deletar mangá: ' + (error as Error).message);
+      } catch (err) {
+        console.error('Erro ao deletar mangá:', err);
+        error('Erro ao Deletar', 'Falha na conexão com o servidor.');
       }
     }
   };
 
   const handleVisualizar = (manga: Manga) => {
-    alert(`Visualizar mangá: ${manga.titulo}\n\nCapítulos: ${manga.capitulos?.length || 0}\n\nFuncionalidade em desenvolvimento!`);
+    info("Visualizar Mangá", `${manga.titulo} - ${manga.capitulos?.length || 0} capítulos. Funcionalidade em desenvolvimento.`);
   };
 
   // Função para carregar mangás da API
@@ -192,8 +190,8 @@ export default function MangasPage() {
         // Fallback para dados de exemplo se a API falhar
         setMangas(mangasExemplo);
       }
-    } catch (error) {
-      console.error('Erro ao carregar mangás:', error);
+    } catch (err) {
+      console.error('Erro ao carregar mangás:', err);
       // Fallback para dados de exemplo
       setMangas(mangasExemplo);
     } finally {
@@ -272,13 +270,13 @@ export default function MangasPage() {
     if (file) {
       // Validar tipo de arquivo
       if (!file.type.startsWith('image/')) {
-        alert('Por favor, selecione apenas arquivos de imagem.');
+        warning('Arquivo Inválido', 'Por favor, selecione apenas arquivos de imagem.');
         return;
       }
       
       // Validar tamanho (máximo 10MB antes da compressão)
       if (file.size > 10 * 1024 * 1024) {
-        alert('A imagem deve ter no máximo 10MB.');
+        warning('Arquivo Muito Grande', 'A imagem deve ter no máximo 10MB.');
         return;
       }
 
@@ -288,8 +286,8 @@ export default function MangasPage() {
       try {
         const compressedBase64 = await comprimirImagem(file, 400, 0.7); // Capa menor
         setPreviewCapa(compressedBase64);
-      } catch (error) {
-        console.error('Erro ao comprimir imagem:', error);
+      } catch (err) {
+        console.error('Erro ao comprimir imagem:', err);
         // Fallback para método original
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -306,11 +304,11 @@ export default function MangasPage() {
       // Validar todos os arquivos
       for (const file of files) {
         if (!file.type.startsWith('image/')) {
-          alert('Por favor, selecione apenas arquivos de imagem.');
+          warning('Arquivo Inválido', 'Por favor, selecione apenas arquivos de imagem.');
           return;
         }
         if (file.size > 10 * 1024 * 1024) {
-          alert('Cada imagem deve ter no máximo 10MB.');
+          warning('Arquivo Muito Grande', 'Cada imagem deve ter no máximo 10MB.');
           return;
         }
       }
@@ -324,8 +322,8 @@ export default function MangasPage() {
         try {
           const compressedBase64 = await comprimirImagem(files[i], 600, 0.8); // Páginas um pouco maiores
           previews[i] = compressedBase64;
-        } catch (error) {
-          console.error('Erro ao comprimir página:', error);
+        } catch (err) {
+          console.error('Erro ao comprimir página:', err);
           // Fallback para método original
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -343,7 +341,7 @@ export default function MangasPage() {
     e.preventDefault();
     
     if (!formulario.titulo || !formulario.capa || capituloAtual.paginas.length === 0) {
-      alert('Por favor, preencha o título, selecione uma capa e adicione pelo menos uma página.');
+      warning('Dados Incompletos', 'Por favor, preencha o título, selecione uma capa e adicione pelo menos uma página.');
       return;
     }
 
@@ -360,9 +358,11 @@ export default function MangasPage() {
         capitulo: {
           numero: capituloAtual.numero,
           titulo: capituloAtual.titulo || `Capítulo ${capituloAtual.numero}`,
-          paginas: previewPaginas
+          paginas: previewPaginas,
+          
         }
       };
+      console.log("DEBUG (client):", mangaData);
 
       // Enviar para API
       const response = await fetch('/api/mangas', {
@@ -400,11 +400,11 @@ export default function MangasPage() {
       setPreviewPaginas([]);
       setModalAberto(false);
       
-      alert('Mangá adicionado com sucesso!');
+      success('Mangá Criado', 'O mangá foi adicionado com sucesso!');
       
-    } catch (error) {
-      console.error('Erro ao salvar mangá:', error);
-      alert('Erro ao salvar mangá: ' + (error as Error).message);
+    } catch (err) {
+      console.error('Erro ao salvar mangá:', err);
+      error('Erro ao Salvar', 'Falha ao criar o mangá. Tente novamente.');
     } finally {
       setSalvando(false);
     }
