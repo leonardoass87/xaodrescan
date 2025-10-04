@@ -36,23 +36,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
-    user: "1001:1001"
-
-  # Serviço para inicialização do banco
-  db-init:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: xaodrescan_db_init
-    environment:
-      - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
-      - USE_SSL=false
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: ["node", "scripts/auto-setup-db.js"]
-    restart: "no"
-
+    restart: unless-stopped   
+ 
 volumes:
   postgres_data:
