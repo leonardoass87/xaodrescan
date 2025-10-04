@@ -34,6 +34,10 @@ COPY --from=builder /app/public ./public
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Criar diretórios e ajustar permissões
+RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
+
+
 # Mudar ownership dos arquivos
 RUN chown -R nextjs:nodejs /app
 USER nextjs

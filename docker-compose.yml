@@ -37,6 +37,7 @@ services:
       postgres:
         condition: service_healthy
     restart: unless-stopped
+    user: "1001:1001"
 
   # Serviço para inicialização do banco
   db-init:
