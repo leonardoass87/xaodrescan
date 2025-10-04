@@ -16,6 +16,18 @@ jobs:
           clean: false
           fetch-depth: 0
 
+      - name: Clean up space
+        run: |
+          echo "🧹 Limpando espaço em disco..."
+          # Limpar containers antigos
+          docker system prune -f
+          # Limpar imagens não utilizadas
+          docker image prune -f
+          # Limpar volumes não utilizados
+          docker volume prune -f
+          # Mostrar espaço disponível
+          df -h
+
       - name: Deploy with Docker Compose
         run: |
           echo "🚀 Subindo containers..."
