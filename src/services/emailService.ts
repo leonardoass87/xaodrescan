@@ -170,32 +170,32 @@ class EmailService {
               <h1 style="color: white; margin: 0; font-size: 28px;">✅ XaoDRescan</h1>
               <p style="color: #e0e0e0; margin: 10px 0 0 0;">Senha Redefinida</p>
             </div>
-            
+
             <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
               <h2 style="color: #333; margin-top: 0;">Olá, ${userName}!</h2>
-              
+
               <p style="color: #666; line-height: 1.6;">
                 Sua senha foi redefinida com sucesso! 🎉
               </p>
-              
+
               <p style="color: #666; line-height: 1.6;">
                 Agora você pode fazer login com sua nova senha.
               </p>
-              
+
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login" 
-                   style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); 
-                          color: white; 
-                          padding: 15px 30px; 
-                          text-decoration: none; 
-                          border-radius: 25px; 
-                          display: inline-block; 
+                <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login"
+                   style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                          color: white;
+                          padding: 15px 30px;
+                          text-decoration: none;
+                          border-radius: 25px;
+                          display: inline-block;
                           font-weight: bold;
                           font-size: 16px;">
                   🚀 Fazer Login
                 </a>
               </div>
-              
+
               <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0;">
                 <p style="color: #856404; margin: 0; font-size: 14px;">
                   ⚠️ <strong>Segurança:</strong> Se você não fez esta alteração, entre em contato conosco imediatamente.
@@ -216,6 +216,113 @@ class EmailService {
       await this.transporter.sendMail(mailOptions);
       console.log(`✅ Email de confirmação enviado para: ${email}`);
       return true;
+    } catch (error) {
+      console.error('❌ Erro ao enviar email de confirmação:', (error as Error).message);
+      return false;
+    }
+  }
+
+  async sendEmailConfirmation(email: string, userName: string, confirmationToken: string): Promise<boolean> {
+    try {
+      const confirmationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/confirm-email?token=${confirmationToken}`;
+
+      // Em modo de desenvolvimento sem SMTP configurado, apenas logar o email
+      if (process.env.NODE_ENV === 'development' && !process.env.SMTP_USER) {
+        console.log('📧 [DEV] Email de confirmação seria enviado para:', email);
+        console.log('🔗 [DEV] Link de confirmação:', confirmationUrl);
+        return true;
+      }
+
+      const mailOptions = {
+        from: `"XaoDRescan" <${process.env.SMTP_USER || 'noreply@xaodrescan.com'}>`,
+        to: email,
+        subject: '📧 Confirme seu email - XaoDRescan',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">📧 XaoDRescan</h1>
+              <p style="color: #e0e0e0; margin: 10px 0 0 0;">Confirmação de Email</p>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+              <h2 style="color: #333; margin-top: 0;">Olá, ${userName}!</h2>
+
+              <p style="color: #666; line-height: 1.6;">
+                Bem-vindo ao XaoDRescan! 🎉
+              </p>
+
+              <p style="color: #666; line-height: 1.6;">
+                Para ativar sua conta e começar a usar todos os recursos, confirme seu email clicando no botão abaixo:
+              </p>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${confirmationUrl}"
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                          color: white;
+                          padding: 15px 30px;
+                          text-decoration: none;
+                          border-radius: 25px;
+                          display: inline-block;
+                          font-weight: bold;
+                          font-size: 16px;">
+                  📧 Confirmar Email
+                </a>
+              </div>
+
+              <p style="color: #666; line-height: 1.6; font-size: 14px;">
+                Ou copie e cole este link no seu navegador:<br>
+                <a href="${confirmationUrl}" style="color: #667eea; word-break: break-all;">${confirmationUrl}</a>
+              </p>
+
+              <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                <p style="color: #856404; margin: 0; font-size: 14px;">
+                  ⚠️ <strong>Importante:</strong> Este link expira em 24 horas por motivos de segurança.
+                </p>
+              </div>
+
+              <p style="color: #666; line-height: 1.6; font-size: 14px;">
+                Se você não criou uma conta no XaoDRescan, pode ignorar este email com segurança.
+              </p>
+
+              <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+
+              <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
+                Este é um email automático, por favor não responda.<br>
+                © 2024 XaoDRescan - Todos os direitos reservados
+              </p>
+            </div>
+          </div>
+        `
+      };
+
+      try {
+        // Tentar envio com configuração atual
+        await this.transporter.sendMail(mailOptions);
+        console.log(`✅ Email de confirmação enviado para: ${email}`);
+        return true;
+      } catch (firstError) {
+        console.log('⚠️ Tentando fallback SSL para confirmação...');
+
+        try {
+          // Tentar com configuração SSL (porta 465)
+          const sslTransporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+              user: process.env.SMTP_USER || '',
+              pass: process.env.SMTP_PASS || ''
+            }
+          });
+
+          await sslTransporter.sendMail(mailOptions);
+          console.log(`✅ Email de confirmação enviado via SSL para: ${email}`);
+          return true;
+        } catch (secondError) {
+          console.error('❌ Falha no envio de email de confirmação:', (secondError as Error).message);
+          return false;
+        }
+      }
     } catch (error) {
       console.error('❌ Erro ao enviar email de confirmação:', (error as Error).message);
       return false;

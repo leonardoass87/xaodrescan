@@ -52,16 +52,29 @@ export default function RegisterPage() {
           localStorage.setItem("token", data.token);
         }
 
-        setSuccess("Registro realizado com sucesso! Redirecionando...");
-        setNome("");
-        setEmail("");
-        setSenha("");
-        setConfirmarSenha("");
+        if (data.requiresEmailConfirmation) {
+          setSuccess("Registro realizado! Verifique seu email para confirmar a conta.");
+          setNome("");
+          setEmail("");
+          setSenha("");
+          setConfirmarSenha("");
 
-        // ⏳ Redireciona após 2 segundos
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
+          // ⏳ Redireciona para página de confirmação
+          setTimeout(() => {
+            router.push("/confirm-email-required");
+          }, 3000);
+        } else {
+          setSuccess("Registro realizado com sucesso! Redirecionando...");
+          setNome("");
+          setEmail("");
+          setSenha("");
+          setConfirmarSenha("");
+
+          // ⏳ Redireciona após 2 segundos
+          setTimeout(() => {
+            router.push("/");
+          }, 2000);
+        }
       } else {
         setError(data.error || "Erro ao registrar usuário");
       }
