@@ -20,6 +20,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "XAODRESCAN",
   description: "Plataforma de leitura de mangás online",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.png', type: 'image/png' }
+    ],
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
