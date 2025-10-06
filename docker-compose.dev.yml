@@ -19,6 +19,12 @@ services:
       - CHOKIDAR_USEPOLLING=true       # garante hot reload no Windows/WSL
       - WATCHPACK_POLLING=true         # melhora hot reload no Docker
       - MANGA_PATH=/mangas        # 👈 variável de ambiente usada no código
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_SECURE=false
+      - SMTP_USER=xaodrescan@gmail.com
+      - SMTP_PASS=pddgsrybhgypztsf
+      - NEXT_PUBLIC_BASE_URL=http://localhost:3000
     depends_on:
       postgres:
         condition: service_healthy

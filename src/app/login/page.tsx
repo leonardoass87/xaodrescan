@@ -94,7 +94,7 @@ export default function LoginPage() {
         {error && <div className="text-[var(--color-red)] mt-4 text-center">{error}</div>}
         {success && <div className="text-green-400 mt-4 text-center">{success}</div>}
         <div className="flex flex-col items-center mt-6 gap-2">
-          <a href="#" className="text-[var(--color-red)] hover:underline text-sm" style={{textShadow: '0 0 8px #ff1744'}}>Esqueci a senha</a>
+          <Link href="/reset-password" className="text-[var(--color-red)] hover:underline text-sm" style={{textShadow: '0 0 8px #ff1744'}}>Esqueci a senha</Link>
           <Link href="/register" className="text-white hover:text-[var(--color-red)] hover:underline text-sm transition-colors">Registrar</Link>
         </div>
       </div>
