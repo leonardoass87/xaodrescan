@@ -11,7 +11,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # volume persistente fora do runner (garante que o banco nunca zere)
+      - /home/lab/docker-volumes/xaodrescan/postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U xaodrescan_user -d xaodrescan"]
       interval: 5s
@@ -22,21 +23,28 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile   # 👈 usa um Dockerfile otimizado para produção
+      dockerfile: Dockerfile
     container_name: xaodrescan_frontend
     ports:
       - "3000:3000"
     volumes:
-      - ./uploads:/app/uploads        # 👈 persistência de uploads   
+      - ./uploads:/app/uploads
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
       - USE_SSL=false
-      - MANGA_PATH=/mangas                       # 👈 mesma variável no prod
+      - MANGA_PATH=/mangas
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped   
- 
-volumes:
-  postgres_data:
+    restart: unless-stopped
+    # healthcheck extra opcional pra monitorar se o Next está de pé
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"] 
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  default:
+    name: xaodrescan_network

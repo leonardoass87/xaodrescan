@@ -6,6 +6,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersegredo_dev';
 export async function middleware(request: NextRequest) {
   // Rotas que não precisam de autenticação
   const publicRoutes = [
+    '/',
+    '/catalogo',
+    '/lancamentos',
     '/login',
     '/register',
     '/reset-password',
@@ -15,7 +18,8 @@ export async function middleware(request: NextRequest) {
     '/api/reset-password',
     '/api/confirm-email',
     '/_next',
-    '/favicon.ico'
+    '/favicon.ico',
+    '/image'
   ];
 
   // Verificar se é uma rota pública
@@ -42,8 +46,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // Por enquanto, permitir acesso sem verificação de email
-    // TODO: Implementar verificação de email no middleware
+    // Verificar se o email foi confirmado
+    // Se não foi confirmado, redirecionar para página de confirmação
+    if (!payload.email_confirmado) {
+      return NextResponse.redirect(new URL('/confirm-email-required', request.url));
+    }
 
     return NextResponse.next();
 

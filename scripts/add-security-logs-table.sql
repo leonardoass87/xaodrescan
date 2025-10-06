@@ -23,3 +23,4 @@ CREATE INDEX IF NOT EXISTS idx_security_logs_ip_timestamp ON security_logs(ip, t
 CREATE INDEX IF NOT EXISTS idx_security_logs_action_timestamp ON security_logs(action, timestamp);
 
 
+

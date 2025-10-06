@@ -11,15 +11,24 @@
     "setup-auto": "node scripts/auto-setup-db.js",
     "health-check": "node scripts/docker-health-check.js",
     "db-reset": "node scripts/reset-db.js",
-    "db-diagnose": "node scripts/diagnose-db.js"
+    "db-diagnose": "node scripts/diagnose-db.js",
+    "migrate-to-prisma": "node scripts/migrate-to-prisma.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "node scripts/seed-prisma.js",
+    "test-prisma": "node scripts/test-prisma.js"
   },
   "dependencies": {
+    "@prisma/client": "^6.16.3",
     "bcrypt": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
     "next": "15.5.4",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.7",
     "pg": "^8.16.3",
+    "prisma": "^6.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

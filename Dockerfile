@@ -1,33 +1,43 @@
-# Etapa 1: Build
+# ==========================
+# 🏗️ Etapa 1: Build
+# ==========================
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiar apenas arquivos de dependências primeiro (para cache)
+# Copiar apenas arquivos de dependências (para aproveitar cache)
 COPY package.json package-lock.json* ./
 
-# Instalar dependências
-##RUN npm ci --only=production --silent
+# Instalar dependências completas (incluindo dev, Prisma etc.)
 RUN npm ci --silent
 
-# Copiar código fonte
+# Copiar o restante do código-fonte
 COPY . .
 
-# Build da aplicação
+# Gerar Prisma Client (necessário antes do build)
+RUN npx prisma generate
+
+# Build da aplicação Next.js
 RUN npm run build
 
-# Etapa 2: Runtime (imagem mínima)
+# ==========================
+# 🚀 Etapa 2: Runtime (mínima)
+# ==========================
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Instalar apenas dependências de produção
+# Copiar arquivos essenciais
 COPY package.json package-lock.json* ./
+
+# Instalar apenas dependências de produção
 RUN npm ci --only=production --silent && npm cache clean --force
 
-# Copiar apenas arquivos necessários
+# Copiar artefatos do builder
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Criar usuário não-root
 RUN addgroup --system --gid 1001 nodejs
@@ -35,14 +45,13 @@ RUN adduser --system --uid 1001 nextjs
 
 # Criar diretórios e ajustar permissões
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
-
-
-# Mudar ownership dos arquivos
 RUN chown -R nextjs:nodejs /app
+
 USER nextjs
 
 EXPOSE 3000
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["npm", "start"]
+# 👇 Aqui fica o comando final que garante migrações + start
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]

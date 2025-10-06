@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
+import Logo from "./Logo";
 
 export default function Header() {
   const { user, logout, isAdmin, isLoading } = useAuth();
@@ -24,7 +25,7 @@ export default function Header() {
       {/* Logo */}
       <div className="flex items-center flex-shrink-0">
         <span className="flex items-center gap-2">
-          <img src="/image/logo.png" alt="Logo XaodreScan" className="h-8 w-8 drop-shadow-[0_0_8px_#ff1744]" />
+          <Logo size={32} />
           <span className="text-[var(--color-red)] font-bold text-lg md:text-2xl drop-shadow-[var(--color-red-glow)]" style={{textShadow: '0 0 12px #ff1744, 0 0 24px #ff1744'}}>
             XaodreScan
           </span>

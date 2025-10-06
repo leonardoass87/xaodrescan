@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
-import pool from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { generateToken } from '@/lib/auth';
 import emailService from '@/services/emailService';
 
 export async function POST(request: NextRequest) {
@@ -22,8 +22,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se já existe
-    const existingUser = await pool.query('SELECT id FROM usuarios WHERE email = $1', [email]);
-    if (existingUser.rows.length > 0) {
+    const existingUser = await prisma.usuario.findUnique({
+      where: { email }
+    });
+    if (existingUser) {
       return NextResponse.json({ error: 'Email já está em uso' }, { status: 409 });
     }
 
@@ -36,14 +38,17 @@ export async function POST(request: NextRequest) {
     const confirmationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
 
     // Inserir usuário (sem confirmação inicial)
-    const result = await pool.query(
-      `INSERT INTO usuarios (nome, email, senha, role, email_confirmado, email_confirmation_token, email_confirmation_expires, created_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) 
-       RETURNING id, nome, email, role, created_at`,
-      [nome, email, hashedPassword, 'usuario', false, confirmationToken, confirmationExpires]
-    );
-
-    const newUser = result.rows[0];
+    const newUser = await prisma.usuario.create({
+      data: {
+        nome,
+        email,
+        senha: hashedPassword,
+        role: 'USUARIO',
+        email_confirmado: false,
+        email_confirmation_token: confirmationToken,
+        email_confirmation_expires: confirmationExpires,
+      }
+    });
 
     // Enviar email de confirmação
     const emailSent = await emailService.sendEmailConfirmation(
@@ -52,12 +57,19 @@ export async function POST(request: NextRequest) {
       confirmationToken
     );
 
-    if (!emailSent) {
+    // Em desenvolvimento, sempre permitir registro mesmo se email falhar
+    if (!emailSent && process.env.NODE_ENV === 'development') {
+      console.log('⚠️ [DEV] Email não enviado, mas permitindo registro em desenvolvimento');
+      console.log(`🔗 [DEV] Link de confirmação: http://localhost:3000/confirm-email?token=${confirmationToken}`);
+    } else if (!emailSent) {
       // Se falhou ao enviar email, limpar o token
-      await pool.query(
-        'UPDATE usuarios SET email_confirmation_token = NULL, email_confirmation_expires = NULL WHERE id = $1',
-        [newUser.id]
-      );
+      await prisma.usuario.update({
+        where: { id: newUser.id },
+        data: {
+          email_confirmation_token: null,
+          email_confirmation_expires: null,
+        }
+      });
 
       return NextResponse.json(
         { error: 'Erro ao enviar email de confirmação. Tente novamente mais tarde.' },
@@ -65,14 +77,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 🔑 Gerar token JWT (sem confirmação de email)
-    const token = jwt.sign(
-      { id: newUser.id, email: newUser.email, role: newUser.role, userId: newUser.id },
-      process.env.JWT_SECRET || "dev-secret",
-      { expiresIn: "1h" }
-    );
-
-    // Retornar resposta sem token (usuário precisa confirmar email)
+    // Retornar resposta SEM token (usuário precisa confirmar email)
     return NextResponse.json(
       {
         message: 'Usuário registrado com sucesso! Verifique seu email para confirmar a conta.',
@@ -84,8 +89,7 @@ export async function POST(request: NextRequest) {
           email_confirmado: false,
           created_at: newUser.created_at
         },
-        requiresEmailConfirmation: true,
-        token // Token temporário para acessar página de confirmação
+        requiresEmailConfirmation: true
       },
       { status: 201 }
     );

@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id                        Int       @id @default(autoincrement())
+  nome                      String
+  email                     String   @unique
+  senha                     String
+  role                      Role      @default(USUARIO)
+  email_confirmado          Boolean   @default(false)
+  email_confirmation_token  String?
+  email_confirmation_expires DateTime?
+  created_at                DateTime  @default(now())
+  updated_at                DateTime  @updatedAt
+
+  // Relacionamentos
+  favoritos                 Favorito[]
+  security_logs            SecurityLog[]
+
+  @@map("usuarios")
+}
+
+model Manga {
+  id           Int      @id @default(autoincrement())
+  titulo        String
+  autor         String?
+  generos       String[]
+  status        Status   @default(EM_ANDAMENTO)
+  visualizacoes Int      @default(0)
+  capa          String?
+  data_adicao   DateTime @default(now())
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  // Relacionamentos
+  capitulos     Capitulo[]
+  favoritos     Favorito[]
+
+  @@map("mangas")
+}
+
+model Capitulo {
+  id              Int      @id @default(autoincrement())
+  manga_id        Int
+  numero          Int
+  titulo          String?
+  data_publicacao DateTime @default(now())
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  // Relacionamentos
+  manga           Manga    @relation(fields: [manga_id], references: [id], onDelete: Cascade)
+  paginas         Pagina[]
+
+  @@unique([manga_id, numero])
+  @@map("capitulos")
+}
+
+model Pagina {
+  id          Int      @id @default(autoincrement())
+  capitulo_id Int
+  numero      Int
+  imagem      String
+  legenda     String?
+  created_at  DateTime @default(now())
+
+  // Relacionamentos
+  capitulo    Capitulo @relation(fields: [capitulo_id], references: [id], onDelete: Cascade)
+
+  @@unique([capitulo_id, numero])
+  @@map("paginas")
+}
+
+model Favorito {
+  id          Int      @id @default(autoincrement())
+  usuario_id  Int
+  manga_id    Int
+  data_favorito DateTime @default(now())
+
+  // Relacionamentos
+  usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  manga       Manga    @relation(fields: [manga_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, manga_id])
+  @@map("favoritos")
+}
+
+model SecurityLog {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  user_id   Int?
+  ip        String
+  user_agent String?
+  action    String
+  severity  Severity
+  details   Json?
+  success   Boolean  @default(false)
+
+  // Relacionamentos
+  user      Usuario? @relation(fields: [user_id], references: [id])
+
+  @@map("security_logs")
+}
+
+// Enums
+enum Role {
+  ADMIN
+  USUARIO
+}
+
+enum Status {
+  EM_ANDAMENTO
+  COMPLETO
+  PAUSADO
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}

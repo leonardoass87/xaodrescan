@@ -230,6 +230,7 @@ class EmailService {
       if (process.env.NODE_ENV === 'development' && !process.env.SMTP_USER) {
         console.log('📧 [DEV] Email de confirmação seria enviado para:', email);
         console.log('🔗 [DEV] Link de confirmação:', confirmationUrl);
+        console.log('👤 [DEV] Nome do usuário:', userName);
         return true;
       }
 

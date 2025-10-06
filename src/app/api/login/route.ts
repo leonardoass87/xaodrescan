@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import pool from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { generateToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,19 +25,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar usuário no banco
-    const result = await pool.query(
-      'SELECT id, nome, email, senha, role, created_at FROM usuarios WHERE email = $1',
-      [email]
-    );
+    const user = await prisma.usuario.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        senha: true,
+        role: true,
+        created_at: true,
+      }
+    });
 
-    if (result.rows.length === 0) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Email ou senha incorretos' },
         { status: 401 }
       );
     }
-
-    const user = result.rows[0];
 
     // Verificar senha
     const isPasswordValid = await bcrypt.compare(senha, user.senha);
@@ -47,16 +53,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Gerar token JWT
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      userId: user.id
+    });
+
     // Remover senha do objeto de resposta
     const { senha: _, ...userWithoutPassword } = user;
 
-    return NextResponse.json(
+    // Criar resposta com cookie
+    const response = NextResponse.json(
       {
         message: 'Login realizado com sucesso',
         user: userWithoutPassword
       },
       { status: 200 }
     );
+
+    // Definir cookie com o token
+    response.cookies.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 horas
+    });
+
+    return response;
 
   } catch (error) {
     console.error('Erro no login:', error);

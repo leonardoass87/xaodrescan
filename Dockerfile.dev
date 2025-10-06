@@ -1,18 +1,36 @@
+# ==========================
+# 🧑‍💻 Ambiente de Desenvolvimento
+# ==========================
 FROM node:20-alpine
 
+# Cria diretório de trabalho
 WORKDIR /app
 
-# Copiar apenas os manifests primeiro (cache inteligente)
+# Copiar apenas os manifests para aproveitar cache de dependências
 COPY package*.json ./
 
-# Instalar dependências
-RUN npm install
+# Instalar dependências completas (inclui Prisma e dev tools)
+RUN npm install --legacy-peer-deps
 
-# Copiar o resto do código (para build inicial, mesmo que volume sobrescreva depois)
+# Copiar o restante do código (para build inicial)
 COPY . .
 
-# Expor porta
+# Gera o Prisma Client (necessário para rodar queries no modo dev)
+RUN npx prisma generate
+
+# Criar grupos e usuários, e ajustar permissões — essencial para dev no Windows
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs && \
+    mkdir -p /app/.next && \
+    mkdir -p /app/uploads && \
+    chown -R nextjs:nodejs /app
+
+USER nextjs
+
+# Variáveis padrão (pode sobrescrever pelo docker-compose.dev.yml)
+ENV NODE_ENV=development
+ENV PORT=3000
 EXPOSE 3000
 
-# Rodar Next.js em modo dev
+# Ativa hot-reload do Next.js
 CMD ["npm", "run", "dev"]

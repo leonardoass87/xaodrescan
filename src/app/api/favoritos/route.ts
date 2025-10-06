@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Pool } from 'pg';
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+import { prisma } from '@/lib/prisma';
 
 // GET - Buscar favoritos de um usuário
 export async function GET(request: NextRequest) {
@@ -15,36 +11,28 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'userId é obrigatório' }, { status: 400 });
     }
 
-    const client = await pool.connect();
+    const favoritos = await prisma.favorito.findMany({
+      where: { usuario_id: parseInt(userId) },
+      include: {
+        manga: true
+      },
+      orderBy: { data_favorito: 'desc' }
+    });
     
-    try {
-      const query = `
-        SELECT 
-          f.id,
-          f.data_favorito,
-          m.id as manga_id,
-          m.titulo,
-          m.autor,
-          m.capa,
-          m.status,
-          m.visualizacoes,
-          m.data_adicao
-        FROM favoritos f
-        JOIN mangas m ON f.manga_id = m.id
-        WHERE f.usuario_id = $1
-        ORDER BY f.data_favorito DESC
-      `;
-
-      const result = await client.query(query, [userId]);
-      
-      return NextResponse.json({
-        success: true,
-        favoritos: result.rows
-      });
-
-    } finally {
-      client.release();
-    }
+    return NextResponse.json({
+      success: true,
+      favoritos: favoritos.map(f => ({
+        id: f.id,
+        data_favorito: f.data_favorito,
+        manga_id: f.manga.id,
+        titulo: f.manga.titulo,
+        autor: f.manga.autor,
+        capa: f.manga.capa,
+        status: f.manga.status,
+        visualizacoes: f.manga.visualizacoes,
+        data_adicao: f.manga.data_adicao
+      }))
+    });
 
   } catch (error) {
     console.error('Erro ao buscar favoritos:', error);
@@ -67,46 +55,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const client = await pool.connect();
-    
-    try {
-      await client.query('BEGIN');
-
-      // Verificar se o favorito já existe
-      const existingFavorito = await client.query(
-        'SELECT id FROM favoritos WHERE usuario_id = $1 AND manga_id = $2',
-        [userId, mangaId]
-      );
-
-      if (existingFavorito.rows.length > 0) {
-        await client.query('ROLLBACK');
-        return NextResponse.json({
-          success: true,
-          message: 'Mangá já está nos favoritos',
-          favoritado: true
-        });
+    // Verificar se o favorito já existe
+    const existingFavorito = await prisma.favorito.findFirst({
+      where: {
+        usuario_id: parseInt(userId),
+        manga_id: parseInt(mangaId)
       }
+    });
 
-      // Inserir novo favorito
-      const result = await client.query(
-        'INSERT INTO favoritos (usuario_id, manga_id) VALUES ($1, $2) RETURNING id, data_favorito',
-        [userId, mangaId]
-      );
-
-      await client.query('COMMIT');
-
+    if (existingFavorito) {
       return NextResponse.json({
         success: true,
-        message: 'Mangá adicionado aos favoritos',
-        favorito: result.rows[0]
+        message: 'Mangá já está nos favoritos',
+        favoritado: true
       });
-
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
     }
+
+    // Inserir novo favorito
+    const favorito = await prisma.favorito.create({
+      data: {
+        usuario_id: parseInt(userId),
+        manga_id: parseInt(mangaId)
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Mangá adicionado aos favoritos',
+      favorito: {
+        id: favorito.id,
+        data_favorito: favorito.data_favorito
+      }
+    });
 
   } catch (error) {
     console.error('Erro ao adicionar favorito:', error);
@@ -131,29 +111,24 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const client = await pool.connect();
-    
-    try {
-      const result = await client.query(
-        'DELETE FROM favoritos WHERE usuario_id = $1 AND manga_id = $2 RETURNING id',
-        [userId, mangaId]
-      );
-
-      if (result.rows.length === 0) {
-        return NextResponse.json({
-          success: false,
-          message: 'Favorito não encontrado'
-        }, { status: 404 });
+    const result = await prisma.favorito.deleteMany({
+      where: {
+        usuario_id: parseInt(userId),
+        manga_id: parseInt(mangaId)
       }
+    });
 
+    if (result.count === 0) {
       return NextResponse.json({
-        success: true,
-        message: 'Favorito removido com sucesso'
-      });
-
-    } finally {
-      client.release();
+        success: false,
+        message: 'Favorito não encontrado'
+      }, { status: 404 });
     }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Favorito removido com sucesso'
+    });
 
   } catch (error) {
     console.error('Erro ao remover favorito:', error);

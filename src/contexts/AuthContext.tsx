@@ -25,25 +25,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há usuário logado no localStorage
-    const checkUser = () => {
+    // Verificar se há usuário logado via API
+    const checkUser = async () => {
       try {
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-          const userData = JSON.parse(savedUser);
+        const response = await fetch('/api/user/profile', {
+          credentials: 'include' // Incluir cookies
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
           setUser(userData);
+        } else {
+          // Se não conseguir buscar o usuário, limpar localStorage
+          localStorage.removeItem('user');
         }
       } catch (error) {
-        console.error('Erro ao carregar dados do usuário:', error);
+        console.error('Erro ao verificar usuário:', error);
         localStorage.removeItem('user');
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Aguardar um tick para garantir que o componente foi montado
-    const timer = setTimeout(checkUser, 0);
-    return () => clearTimeout(timer);
+    checkUser();
   }, []);
 
   const login = (userData: User) => {

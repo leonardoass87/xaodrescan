@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 
 export default function RegisterPage() {
   const [nome, setNome] = useState("");
@@ -41,17 +42,13 @@ export default function RegisterPage() {
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include', // Incluir cookies
         body: JSON.stringify({ nome, email, senha }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // 🔑 Salvar token do usuário
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-        }
-
         if (data.requiresEmailConfirmation) {
           setSuccess("Registro realizado! Verifique seu email para confirmar a conta.");
           setNome("");
@@ -87,10 +84,9 @@ export default function RegisterPage() {
     <main className="flex flex-col items-center justify-center min-h-[calc(100vh-112px)] bg-[var(--color-bg)] bg-gradient-to-br from-[#181818] to-[#232323]">
       <div className="w-full max-w-md bg-black/70 rounded-xl shadow-2xl p-8 border border-[var(--color-red)]">
         <div className="flex flex-col items-center mb-8">
-          <img
-            src="/image/logo.png"
-            alt="Logo XaodreScan"
-            className="h-12 w-12 mb-2 drop-shadow-[0_0_12px_#ff1744]"
+          <Logo
+            size={48}
+            className="mb-2 drop-shadow-[0_0_12px_#ff1744]"
           />
           <h1
             className="text-[var(--color-red)] text-3xl font-bold mb-2"
@@ -102,7 +98,7 @@ export default function RegisterPage() {
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Nome completo"
+            placeholder="Nome"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             className="bg-[#181818] border border-gray-700 rounded px-4 py-2 text-white focus:outline-none focus:border-[var(--color-red)] shadow-[0_0_8px_#ff1744]"
