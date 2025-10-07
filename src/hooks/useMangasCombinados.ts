@@ -51,7 +51,7 @@ export const useMangasCombinados = () => {
     
     try {
       const mangasReais = await buscarMangasReais();
-      console.log('Mangás reais encontrados:', mangasReais.length);
+      // Debug log removido por segurança
       
       // Ordenar por data de adição (mais recentes primeiro)
       mangasReais.sort((a, b) => {

@@ -383,7 +383,7 @@ export default function EditarMangaPage() {
         editado_em: new Date().toISOString()
       };
       
-      console.log('📤 Enviando dados:', requestData);
+      // Log removido por segurança - não expor dados sensíveis
       
       const response = await fetch(`/api/mangas/${manga.id}/capitulo`, {
         method: 'POST',
@@ -393,7 +393,7 @@ export default function EditarMangaPage() {
         body: JSON.stringify(requestData),
       });
 
-      console.log('📥 Resposta recebida:', response.status, response.statusText);
+      // Log removido por segurança
       
       if (!response.ok) {
         const errorText = await response.text();

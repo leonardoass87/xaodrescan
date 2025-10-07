@@ -80,12 +80,11 @@ export default function MangasPage() {
           method: 'DELETE'
         });
         
-        console.log('Response status:', response.status);
-        console.log('Response ok:', response.ok);
+        // Logs removidos por segurança
         
         if (response.ok) {
           const result = await response.json();
-          console.log('Resultado da API:', result);
+          // Log removido por segurança
           success('Mangá Deletado', 'O mangá foi removido com sucesso!');
           await carregarMangas(); // Recarregar lista
         } else {

@@ -85,11 +85,11 @@ export async function POST(
     const client = await pool.connect();
     
     try {
-      console.log('🔗 API - Conectando ao banco de dados');
+      // Debug log removido por segurança
       await client.query('BEGIN');
 
       // Verificar se o mangá existe
-      console.log('🔍 API - Verificando se mangá existe:', mangaId);
+      // Debug log removido por segurança
       const mangaResult = await client.query(
         `SELECT id FROM mangas WHERE id = $1`,
         [mangaId]
@@ -102,7 +102,7 @@ export async function POST(
       }
 
       // Verificar se já existe um capítulo com esse número
-      console.log('🔍 API - Verificando se capítulo já existe:', { mangaId, numero });
+      // Debug log removido por segurança
       const capituloExistente = await client.query(
         `SELECT id FROM capitulos WHERE manga_id = $1 AND numero = $2`,
         [mangaId, numero]
@@ -119,7 +119,7 @@ export async function POST(
       console.log('⏰ API - Timestamp gerado:', timestamp);
 
       // Inserir capítulo
-      console.log('📝 API - Inserindo capítulo:', { mangaId, numero, titulo, editado_por, editado_em });
+      // Debug log removido por segurança
       const capituloResult = await client.query(`
         INSERT INTO capitulos (manga_id, numero, titulo, data_publicacao, editado_por, updated_at)
         VALUES ($1, $2, $3, NOW(), $4, $5)
@@ -133,15 +133,15 @@ export async function POST(
       console.log('📄 API - Salvando páginas:', paginas.length);
       for (let i = 0; i < paginas.length; i++) {
         const pagina = paginas[i];
-        console.log(`📄 API - Processando página ${i + 1}/${paginas.length}`);
+        // Debug log removido por segurança
         
         const extensaoPagina = pagina.preview.includes('data:image/png') ? 'png' : 'jpg';
         const nomePagina = `pagina_${capituloId}_${i + 1}_${timestamp}.${extensaoPagina}`;
         
-        console.log(`💾 API - Salvando imagem: ${nomePagina}`);
+        // Debug log removido por segurança
         const urlPagina = await salvarImagem(pagina.preview, nomePagina, `capitulos/${capituloId}`);
         
-        console.log(`💾 API - Inserindo página no banco: ${urlPagina}`);
+        // Debug log removido por segurança
         await client.query(`
           INSERT INTO paginas (capitulo_id, numero, imagem, legenda, editado_por, updated_at)
           VALUES ($1, $2, $3, $4, $5, $6)

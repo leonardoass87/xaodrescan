@@ -76,11 +76,11 @@ export async function POST(
     const client = await pool.connect();
     
     try {
-      console.log('🔗 API - Conectando ao banco de dados');
+      // Debug log removido por segurança
       await client.query('BEGIN');
 
       // Verificar se o mangá existe
-      console.log('🔍 API - Verificando se mangá existe:', mangaId);
+      // Debug log removido por segurança
       const mangaResult = await client.query(
         `SELECT id FROM mangas WHERE id = $1`,
         [mangaId]
@@ -93,7 +93,7 @@ export async function POST(
       }
 
       // Verificar se o capítulo existe
-      console.log('🔍 API - Verificando se capítulo existe:', { mangaId, capId });
+      // Debug log removido por segurança
       const capituloResult = await client.query(
         `SELECT id, numero FROM capitulos WHERE id = $1 AND manga_id = $2`,
         [capId, mangaId]
@@ -124,15 +124,15 @@ export async function POST(
       for (let i = 0; i < paginas.length; i++) {
         const pagina = paginas[i];
         const numeroPagina = proximoNumero + i;
-        console.log(`📄 API - Processando página ${i + 1}/${paginas.length} (número ${numeroPagina})`);
+        // Debug log removido por segurança
         
         const extensaoPagina = pagina.preview.includes('data:image/png') ? 'png' : 'jpg';
         const nomePagina = `pagina_${capId}_${numeroPagina}_${timestamp}.${extensaoPagina}`;
         
-        console.log(`💾 API - Salvando imagem: ${nomePagina}`);
+        // Debug log removido por segurança
         const urlPagina = await salvarImagem(pagina.preview, nomePagina, `capitulos/${capId}`);
         
-        console.log(`💾 API - Inserindo página no banco: ${urlPagina}`);
+        // Debug log removido por segurança
         await client.query(`
           INSERT INTO paginas (capitulo_id, numero, imagem, legenda, editado_por, updated_at)
           VALUES ($1, $2, $3, $4, $5, $6)

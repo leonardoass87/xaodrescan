@@ -29,6 +29,8 @@ services:
       - "3000:3000"
     volumes:
       - ./uploads:/app/uploads
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
