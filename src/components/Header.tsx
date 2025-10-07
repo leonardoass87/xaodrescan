@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import Logo from "./Logo";
+import { MiniSpinner } from "./LoadingSpinner";
 
 export default function Header() {
   const { user, logout, isAdmin, isLoading } = useAuth();
@@ -33,8 +34,8 @@ export default function Header() {
       </div>
 
       {/* Desktop Navigation */}
-      <nav className="hidden md:flex flex-1 justify-center">
-        <ul className="flex gap-8 text-white font-medium text-lg">
+      <nav className="hidden lg:flex flex-1 justify-center">
+        <ul className="flex gap-4 xl:gap-8 text-white font-medium text-base xl:text-lg">
           <li>
             <Link 
               href="/" 
@@ -114,13 +115,17 @@ export default function Header() {
               </Link>
             </li>
           )}
+          {/* Debug info removido para melhor performance */}
         </ul>
       </nav>
 
       {/* Desktop User Actions */}
       <div className="hidden md:flex items-center gap-4 flex-shrink-0">
         {isLoading ? (
-          <div className="text-white text-sm">Carregando...</div>
+          <div className="flex items-center gap-2 text-white text-sm">
+            <MiniSpinner size="sm" />
+            <span>Carregando...</span>
+          </div>
         ) : user ? (
           <>
             <span className="text-white text-sm">
@@ -144,7 +149,7 @@ export default function Header() {
       {/* Mobile Menu Button */}
       <button 
         onClick={toggleMenu}
-        className={`md:hidden relative text-white hover:text-[var(--color-red)] transition-all duration-300 flex-shrink-0 ml-2 p-3 rounded-xl ${
+        className={`lg:hidden relative text-white hover:text-[var(--color-red)] transition-all duration-300 flex-shrink-0 ml-2 p-3 rounded-xl ${
           isMenuOpen 
             ? 'bg-gradient-to-r from-red-500/20 to-red-600/20 backdrop-blur-sm border border-red-500/30 shadow-lg' 
             : 'hover:bg-white/10'
@@ -171,7 +176,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="fixed top-16 left-4 right-4 bg-gradient-to-br from-black/95 via-gray-900/95 to-black/95 backdrop-blur-xl border border-red-500/30 rounded-2xl z-50 md:hidden shadow-2xl animate-in slide-in-from-top-4 duration-500">
+        <div className="fixed top-16 left-4 right-4 bg-gradient-to-br from-black/95 via-gray-900/95 to-black/95 backdrop-blur-xl border border-red-500/30 rounded-2xl z-50 lg:hidden shadow-2xl animate-in slide-in-from-top-4 duration-500">
           <nav className="p-6">
             <ul className="space-y-2 text-white font-medium">
             <li>
@@ -254,7 +259,7 @@ export default function Header() {
           <div className="mt-6 pt-4 border-t border-gradient-to-r from-red-500/30 to-transparent">
             {isLoading ? (
               <div className="flex items-center gap-3 text-white/70 py-3">
-                <div className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin"></div>
+                <MiniSpinner size="sm" />
                 <span className="text-sm">Carregando...</span>
               </div>
             ) : user ? (

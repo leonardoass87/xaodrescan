@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir, chmod, unlink } from 'fs/promises';
 import path from 'path';
 
 const pool = new Pool({
@@ -14,16 +14,32 @@ async function salvarImagem(base64Data: string, nomeArquivo: string, subpasta: s
     const base64 = base64Data.split(',')[1];
     const buffer = Buffer.from(base64, 'base64');
     
-    // Criar diretório se não existir
-    const uploadsDir = path.join(process.cwd(), 'uploads', subpasta);
-    await mkdir(uploadsDir, { recursive: true });
+    // Usar diretório temporário primeiro
+    const tempDir = path.join(process.cwd(), 'temp');
+    await mkdir(tempDir, { recursive: true, mode: 0o777 });
     
-    // Salvar arquivo
+    // Salvar arquivo temporário
+    const tempFile = path.join(tempDir, nomeArquivo);
+    await writeFile(tempFile, buffer);
+    
+    // Criar diretório de destino com nome único para evitar conflitos
+    const uniqueDir = `${subpasta}_${Date.now()}`;
+    const uploadsDir = path.join(process.cwd(), 'uploads', uniqueDir);
+    await mkdir(uploadsDir, { recursive: true, mode: 0o777 });
+    
+    // Salvar arquivo no diretório único
     const caminhoArquivo = path.join(uploadsDir, nomeArquivo);
     await writeFile(caminhoArquivo, buffer);
     
+    // Limpar arquivo temporário
+    try {
+      await unlink(tempFile);
+    } catch (error) {
+      console.log('Não foi possível remover arquivo temporário:', error);
+    }
+    
     // Retornar URL relativa com /uploads/
-    const url = `/uploads/${subpasta}${subpasta ? '/' : ''}${nomeArquivo}`;
+    const url = `/uploads/${uniqueDir}/${nomeArquivo}`;
     return url;
   } catch (error) {
     console.error('Erro ao salvar imagem:', error);
@@ -80,17 +96,17 @@ export async function POST(request: NextRequest) {
 
       // Inserir mangá
       const mangaResult = await client.query(`
-        INSERT INTO mangas (titulo, autor, generos, status, capa)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO mangas (titulo, autor, generos, status, capa, updated_at)
+        VALUES ($1, $2, $3, $4, $5, NOW())
         RETURNING id
-      `, [titulo, autor || null, generos || [], status || 'em_andamento', urlCapa]);
+      `, [titulo, autor || null, generos || [], status || 'EM_ANDAMENTO', urlCapa]);
 
       const mangaId = mangaResult.rows[0].id;
 
       // Inserir capítulo
       const capituloResult = await client.query(`
-        INSERT INTO capitulos (manga_id, numero, titulo, data_publicacao)
-        VALUES ($1, $2, $3, NOW())
+        INSERT INTO capitulos (manga_id, numero, titulo, data_publicacao, updated_at)
+        VALUES ($1, $2, $3, NOW(), NOW())
         RETURNING id
       `, [mangaId, capitulo.numero, capitulo.titulo || `Capítulo ${capitulo.numero}`]);
 

@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
     // Verificar token
     const tokenResult = verifyToken(request);
     
+    // Debug logs removidos para melhor performance
+    
     if (!tokenResult.success) {
       return NextResponse.json(
         { error: tokenResult.error },
@@ -25,6 +27,7 @@ export async function GET(request: NextRequest) {
         nome: true,
         email: true,
         email_confirmado: true,
+        role: true, // ← Adicionar role na resposta
       }
     });
 

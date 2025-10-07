@@ -2,7 +2,7 @@ export interface Manga {
   id: number;
   titulo: string;
   capa: string;
-  status: "em_andamento" | "completo" | "pausado";
+  status: "EM_ANDAMENTO" | "COMPLETO" | "PAUSADO";
   autor?: string;
   generos?: string[];
   visualizacoes?: number;

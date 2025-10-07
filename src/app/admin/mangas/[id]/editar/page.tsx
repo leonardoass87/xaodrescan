@@ -40,7 +40,7 @@ interface Manga {
   titulo: string;
   autor: string;
   generos: string[];
-  status: "em_andamento" | "completo" | "pausado";
+  status: "EM_ANDAMENTO" | "COMPLETO" | "PAUSADO";
   capitulos: Capitulo[];
   visualizacoes: number;
   capa: string;

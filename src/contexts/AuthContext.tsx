@@ -6,7 +6,7 @@ interface User {
   id: number;
   nome: string;
   email: string;
-  role: 'admin' | 'usuario';
+  role: 'ADMIN' | 'USUARIO';
   created_at: string;
 }
 
@@ -36,7 +36,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userData = await response.json();
           setUser(userData);
         } else {
-          // Se não conseguir buscar o usuário, limpar localStorage
+          // Se não conseguir buscar o usuário, limpar estado
+          setUser(null);
           localStorage.removeItem('user');
         }
       } catch (error) {
@@ -61,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const isAdmin = () => {
-    return user?.role === 'admin';
+    return user?.role === 'ADMIN';
   };
 
   return (

@@ -61,3 +61,22 @@ body {
     z-index: 40;
   }
 }
+
+/* Loading animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Smooth transitions for route changes */
+.page-transition {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.page-transition.loading {
+  opacity: 0.7;
+}

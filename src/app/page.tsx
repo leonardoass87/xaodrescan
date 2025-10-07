@@ -100,13 +100,13 @@ export default function Home() {
           </div>
           <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
             <div className="text-3xl font-bold text-red-500 mb-2">
-              {mangas.filter(m => m.status === 'em_andamento').length}
+              {mangas.filter(m => m.status === 'EM_ANDAMENTO').length}
             </div>
             <div className="text-gray-300">Em Andamento</div>
           </div>
           <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
             <div className="text-3xl font-bold text-red-500 mb-2">
-              {mangas.filter(m => m.status === 'completo').length}
+              {mangas.filter(m => m.status === 'COMPLETO').length}
             </div>
             <div className="text-gray-300">Completos</div>
           </div>

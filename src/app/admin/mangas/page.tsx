@@ -32,60 +32,14 @@ interface Manga {
   titulo: string;
   autor: string;
   generos: string[];
-  status: "em_andamento" | "completo" | "pausado";
+  status: "EM_ANDAMENTO" | "COMPLETO" | "PAUSADO";
   capitulos: Capitulo[];
   visualizacoes: number;
   capa: string;
   dataAdicao: string;
 }
 
-const mangasExemplo: Manga[] = [
-  {
-    id: 1,
-    titulo: "One Piece",
-    autor: "Eiichiro Oda",
-    generos: ["Ação", "Aventura", "Comédia"],
-    status: "em_andamento",
-    capitulos: [
-      {
-        id: 1,
-        numero: 1095,
-        titulo: "O Sonho de Luffy",
-        paginas: [
-          { id: 1, numero: 1, imagem: "https://via.placeholder.com/800x1200/ff1744/ffffff?text=Página+1" },
-          { id: 2, numero: 2, imagem: "https://via.placeholder.com/800x1200/ff1744/ffffff?text=Página+2" },
-          { id: 3, numero: 3, imagem: "https://via.placeholder.com/800x1200/ff1744/ffffff?text=Página+3" }
-        ],
-        dataPublicacao: "2024-01-10"
-      }
-    ],
-    visualizacoes: 2500000,
-    capa: "https://via.placeholder.com/200x300/ff1744/ffffff?text=One+Piece",
-    dataAdicao: "2024-01-10"
-  },
-  {
-    id: 2,
-    titulo: "Attack on Titan",
-    autor: "Hajime Isayama",
-    generos: ["Ação", "Drama", "Fantasia"],
-    status: "completo",
-    capitulos: [
-      {
-        id: 1,
-        numero: 139,
-        titulo: "Capítulo Final",
-        paginas: [
-          { id: 1, numero: 1, imagem: "https://via.placeholder.com/800x1200/ff1744/ffffff?text=Página+1" },
-          { id: 2, numero: 2, imagem: "https://via.placeholder.com/800x1200/ff1744/ffffff?text=Página+2" }
-        ],
-        dataPublicacao: "2024-01-15"
-      }
-    ],
-    visualizacoes: 1800000,
-    capa: "https://via.placeholder.com/200x300/ff1744/ffffff?text=Attack+on+Titan",
-    dataAdicao: "2024-01-15"
-  }
-];
+// Dados mockados removidos - agora usa dados reais da API
 
 export default function MangasPage() {
   const { success, error, warning, info } = useNotificationContext();
@@ -99,7 +53,7 @@ export default function MangasPage() {
     titulo: "",
     autor: "",
     generos: "",
-    status: "em_andamento" as "em_andamento" | "completo" | "pausado",
+    status: "EM_ANDAMENTO" as "EM_ANDAMENTO" | "COMPLETO" | "pausado",
     capa: null as File | null
   });
   const [previewCapa, setPreviewCapa] = useState<string | null>(null);
@@ -161,7 +115,7 @@ export default function MangasPage() {
         // Transformar dados da API para o formato esperado pelo frontend
         const mangasFormatados = await Promise.all(
           dados.map(async (manga: any) => {
-            // Buscar capítulos completos para cada mangá
+            // Buscar capítulos COMPLETOs para cada mangá
             const capitulosResponse = await fetch(`/api/mangas/${manga.id}`);
             if (capitulosResponse.ok) {
               const mangaCompleto = await capitulosResponse.json();
@@ -196,13 +150,11 @@ export default function MangasPage() {
         setMangas(mangasFormatados);
       } else {
         console.error('Erro ao carregar mangás');
-        // Fallback para dados de exemplo se a API falhar
-        setMangas(mangasExemplo);
+        setMangas([]);
       }
     } catch (err) {
       console.error('Erro ao carregar mangás:', err);
-      // Fallback para dados de exemplo
-      setMangas(mangasExemplo);
+      setMangas([]);
     } finally {
       setCarregando(false);
     }
@@ -228,8 +180,8 @@ export default function MangasPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "em_andamento": return "bg-green-500/20 text-green-300 border-green-500/30";
-      case "completo": return "bg-blue-500/20 text-blue-300 border-blue-500/30";
+      case "EM_ANDAMENTO": return "bg-green-500/20 text-green-300 border-green-500/30";
+      case "COMPLETO": return "bg-blue-500/20 text-blue-300 border-blue-500/30";
       case "pausado": return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
       default: return "bg-gray-500/20 text-gray-300 border-gray-500/30";
     }
@@ -237,8 +189,8 @@ export default function MangasPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "em_andamento": return "Em Andamento";
-      case "completo": return "Completo";
+      case "EM_ANDAMENTO": return "Em Andamento";
+      case "COMPLETO": return "Completo";
       case "pausado": return "Pausado";
       default: return status;
     }
@@ -384,7 +336,7 @@ export default function MangasPage() {
     e.preventDefault();
     
     if (!formulario.titulo || !formulario.capa || capituloAtual.paginas.length === 0) {
-      warning('Dados Incompletos', 'Por favor, preencha o título, selecione uma capa e adicione pelo menos uma página.');
+      warning('Dados InCOMPLETOs', 'Por favor, preencha o título, selecione uma capa e adicione pelo menos uma página.');
       return;
     }
 
@@ -433,7 +385,7 @@ export default function MangasPage() {
         titulo: "",
         autor: "",
         generos: "",
-        status: "em_andamento",
+        status: "EM_ANDAMENTO",
         capa: null
       });
       setCapituloAtual({
@@ -460,7 +412,7 @@ export default function MangasPage() {
       titulo: "",
       autor: "",
       generos: "",
-      status: "em_andamento",
+      status: "EM_ANDAMENTO",
       capa: null
     });
     setCapituloAtual({
@@ -519,8 +471,8 @@ export default function MangasPage() {
               className="bg-black/50 border border-red-500/30 rounded-lg px-3 md:px-4 py-2 md:py-3 text-white focus:border-red-500 focus:outline-none text-sm md:text-base flex-1 lg:flex-none"
             >
               <option value="">Todos os status</option>
-              <option value="em_andamento">Em Andamento</option>
-              <option value="completo">Completo</option>
+              <option value="EM_ANDAMENTO">Em Andamento</option>
+              <option value="COMPLETO">Completo</option>
               <option value="pausado">Pausado</option>
             </select>
             <div className="flex border border-red-500/30 rounded-lg overflow-hidden">
@@ -716,11 +668,11 @@ export default function MangasPage() {
           <div className="text-gray-400 text-xs md:text-sm">Total de Mangás</div>
         </div>
         <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-3 md:p-6 text-center">
-          <div className="text-lg md:text-2xl font-bold text-green-400">{mangas.filter(m => m.status === 'em_andamento').length}</div>
+          <div className="text-lg md:text-2xl font-bold text-green-400">{mangas.filter(m => m.status === 'EM_ANDAMENTO').length}</div>
           <div className="text-gray-400 text-xs md:text-sm">Em Andamento</div>
         </div>
         <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-3 md:p-6 text-center">
-          <div className="text-lg md:text-2xl font-bold text-blue-400">{mangas.filter(m => m.status === 'completo').length}</div>
+          <div className="text-lg md:text-2xl font-bold text-blue-400">{mangas.filter(m => m.status === 'COMPLETO').length}</div>
           <div className="text-gray-400 text-xs md:text-sm">Completos</div>
         </div>
         <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-3 md:p-6 text-center">
@@ -864,8 +816,8 @@ export default function MangasPage() {
                     onChange={(e) => setFormulario(prev => ({ ...prev, status: e.target.value as any }))}
                     className="w-full bg-black/50 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors"
                   >
-                    <option value="em_andamento">Em Andamento</option>
-                    <option value="completo">Completo</option>
+                    <option value="EM_ANDAMENTO">Em Andamento</option>
+                    <option value="COMPLETO">Completo</option>
                     <option value="pausado">Pausado</option>
                   </select>
                 </div>

@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import NotificationContainer from "@/components/NotificationContainer";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <NotificationProvider>
+            <LoadingSpinner />
             <Header />
             <div className="pt-16 pb-12 min-h-screen bg-[var(--color-bg)]">
               {children}

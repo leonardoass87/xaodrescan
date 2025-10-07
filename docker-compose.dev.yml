@@ -37,8 +37,10 @@ services:
       NODE_ENV: development
       DATABASE_URL: postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
       JWT_SECRET: supersegredo_dev
-      CHOKIDAR_USEPOLLING: "true"
-      WATCHPACK_POLLING: "true"
+      # Otimizações de performance
+      CHOKIDAR_USEPOLLING: "false"
+      WATCHPACK_POLLING: "false"
+      NEXT_TELEMETRY_DISABLED: "1"
       MANGA_PATH: /mangas
       SMTP_HOST: smtp.gmail.com
       SMTP_PORT: 587

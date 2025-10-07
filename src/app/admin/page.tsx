@@ -98,7 +98,7 @@ export default function AdminDashboard() {
                 <span className="text-red-400 text-sm">📚</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium truncate">Novo mangá "One Piece" adicionado</p>
+                <p className="text-white text-sm font-medium truncate">Novo mangá adicionado</p>
                 <p className="text-gray-400 text-xs">há 2 horas</p>
               </div>
             </div>

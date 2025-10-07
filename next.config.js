@@ -5,6 +5,18 @@ const nextConfig = {
     unoptimized: true,
     domains: ['localhost'],
   },
+  // Otimizações de performance
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@/components', '@/contexts', '@/hooks'],
+  },
+  // Compressão
+  compress: true,
+  // Cache otimizado
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
   async rewrites() {
     return [
       {
