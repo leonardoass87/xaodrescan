@@ -3,16 +3,32 @@ import { Pool } from 'pg';
 import { writeFile, mkdir, chmod, unlink } from 'fs/promises';
 import path from 'path';
 
+// Configurações para uploads grandes
+// ECONNRESET acontece quando:
+// 1. Corpo da requisição muito grande (base64 é ~33% maior que arquivo original)
+// 2. Tempo de processamento excedido (Edge Runtime tem timeout de 30s)
+// 3. Memória insuficiente para processar payload grande
+export const runtime = 'nodejs'; // Usa Node.js runtime (sem timeout de 30s)
+export const maxDuration = 120; // 2 minutos para processar uploads grandes
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-// Função para salvar imagem base64 em arquivo
-async function salvarImagem(base64Data: string, nomeArquivo: string, subpasta: string = '') {
+// Função para salvar imagem (base64 ou File) em arquivo
+async function salvarImagem(imageData: string | File, nomeArquivo: string, subpasta: string = '') {
   try {
-    // Remover o prefixo data:image/...;base64,
-    const base64 = base64Data.split(',')[1];
-    const buffer = Buffer.from(base64, 'base64');
+    let buffer: Buffer;
+    
+    if (typeof imageData === 'string') {
+      // Modo base64 (compatibilidade com sistema atual)
+      const base64 = imageData.split(',')[1];
+      buffer = Buffer.from(base64, 'base64');
+    } else {
+      // Modo File (FormData)
+      const arrayBuffer = await imageData.arrayBuffer();
+      buffer = Buffer.from(arrayBuffer);
+    }
     
     // Usar diretório temporário primeiro
     const tempDir = path.join(process.cwd(), 'temp');
@@ -74,7 +90,34 @@ export async function GET() {
 // POST - Criar novo mangá
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    
+    let body: any;
+    let isFormData = false;
+    
+    // Detectar se é FormData ou JSON
+    if (contentType.includes('multipart/form-data')) {
+      isFormData = true;
+      const formData = await request.formData();
+      
+      // Extrair dados do FormData
+      body = {
+        titulo: formData.get('titulo') as string,
+        autor: formData.get('autor') as string,
+        generos: formData.get('generos') as string,
+        status: formData.get('status') as string,
+        capa: formData.get('capa') as File,
+        capitulo: {
+          numero: parseInt(formData.get('capitulo.numero') as string),
+          titulo: formData.get('capitulo.titulo') as string,
+          paginas: Array.from(formData.getAll('capitulo.paginas')) as File[]
+        }
+      };
+    } else {
+      // Modo JSON (compatibilidade com sistema atual)
+      body = await request.json();
+    }
+    
     const { titulo, autor, generos, status, capa, capitulo } = body;
 
     if (!titulo || !capa || !capitulo?.paginas || capitulo.paginas.length === 0) {
@@ -90,7 +133,14 @@ export async function POST(request: NextRequest) {
       const timestamp = Date.now();
       
       // Salvar capa do mangá
-      const extensaoCapa = capa.includes('data:image/png') ? 'png' : 'jpg';
+      let extensaoCapa: string;
+      if (typeof capa === 'string') {
+        // Modo base64
+        extensaoCapa = capa.includes('data:image/png') ? 'png' : 'jpg';
+      } else {
+        // Modo File
+        extensaoCapa = capa.name.split('.').pop() || 'jpg';
+      }
       const nomeCapa = `capa_${timestamp}.${extensaoCapa}`;
       const urlCapa = await salvarImagem(capa, nomeCapa, 'capas');
 
@@ -115,14 +165,26 @@ export async function POST(request: NextRequest) {
       // Salvar páginas do capítulo na ordem correta
       for (let i = 0; i < capitulo.paginas.length; i++) {
         const pagina = capitulo.paginas[i];
-        const extensaoPagina = pagina.preview.includes('data:image/png') ? 'png' : 'jpg';
+        let extensaoPagina: string;
+        let imagemData: string | File;
+        
+        if (typeof pagina === 'string') {
+          // Modo base64 (compatibilidade)
+          extensaoPagina = pagina.includes('data:image/png') ? 'png' : 'jpg';
+          imagemData = pagina;
+        } else {
+          // Modo File (FormData)
+          extensaoPagina = pagina.name.split('.').pop() || 'jpg';
+          imagemData = pagina;
+        }
+        
         const nomePagina = `pagina_${capituloId}_${i + 1}_${timestamp}.${extensaoPagina}`;
-        const urlPagina = await salvarImagem(pagina.preview, nomePagina, `capitulos/${capituloId}`);
+        const urlPagina = await salvarImagem(imagemData, nomePagina, `capitulos/${capituloId}`);
         
         await client.query(`
           INSERT INTO paginas (capitulo_id, numero, imagem, legenda)
           VALUES ($1, $2, $3, $4)
-        `, [capituloId, i + 1, urlPagina, pagina.legenda || `Página ${i + 1}`]);
+        `, [capituloId, i + 1, urlPagina, `Página ${i + 1}`]);
       }
 
       await client.query('COMMIT');

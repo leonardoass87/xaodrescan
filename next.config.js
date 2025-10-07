@@ -5,6 +5,13 @@ const nextConfig = {
     unoptimized: true,
     domains: ['localhost'],
   },
+  // Configurações para uploads grandes
+  api: {
+    bodyParser: { 
+      sizeLimit: '100mb' // Aumenta limite de upload para 100MB
+    },
+    responseLimit: false, // Remove limite de resposta
+  },
   // Otimizações de performance
   experimental: {
     optimizeCss: true,

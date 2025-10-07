@@ -4,6 +4,10 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { verifyToken } from '@/lib/auth';
 
+// Configurações para uploads grandes
+export const runtime = 'nodejs';
+export const maxDuration = 120;
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
