@@ -9,8 +9,8 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Instalar dependências completas (incluindo dev, Prisma etc.)
-#RUN npm ci --silent
-RUN npm ci --only=production --silent
+RUN npm ci --silent
+
 
 
 # Copiar o restante do código-fonte
