@@ -54,7 +54,7 @@ export default function EditarMangaPage() {
   const { id } = useParams();
   const router = useRouter();
   const { success, error, warning, info } = useNotificationContext();
-  const { user } = useAuth();
+  const { user, isAdmin, isLoading } = useAuth();
   
   const [manga, setManga] = useState<Manga | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -81,6 +81,13 @@ export default function EditarMangaPage() {
   const [modalAdicionarPaginas, setModalAdicionarPaginas] = useState(false);
   const [paginasParaAdicionar, setPaginasParaAdicionar] = useState<PaginaUpload[]>([]);
   const [salvandoPaginas, setSalvandoPaginas] = useState(false);
+
+  // Verificar autenticação
+  useEffect(() => {
+    if (!isLoading && (!user || !isAdmin)) {
+      router.push('/login');
+    }
+  }, [user, isAdmin, isLoading, router]);
 
   // Carregar dados do mangá
   useEffect(() => {
@@ -596,6 +603,23 @@ export default function EditarMangaPage() {
   const formatarData = (data: string) => {
     return new Date(data).toLocaleString('pt-BR');
   };
+
+  // Mostrar loading enquanto verifica autenticação
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p className="text-white">Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não é admin, não renderizar nada (será redirecionado)
+  if (!user || !isAdmin) {
+    return null;
+  }
 
   if (carregando) {
     return (

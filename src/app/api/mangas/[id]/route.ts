@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 import path from 'path';
 import fs from 'fs';
+import { verifyToken } from '@/lib/auth';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
-
 
 export async function POST(request: NextRequest) {
   const client = await pool.connect();
@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
     fs.mkdirSync(paginasDir, { recursive: true });
 
     // Salva a capa
-    if (capa) {   
+    if (capa) {
       const relativePath = `${mangaId}/capa.jpg`;
-      const capaUrl = `/api/uploads/${relativePath}`;        
+      const capaUrl = `/api/uploads/${relativePath}`;
 
       await client.query(`UPDATE mangas SET capa = $1 WHERE id = $2`, [
         capaUrl,
@@ -53,15 +53,14 @@ export async function POST(request: NextRequest) {
     const capituloId = resultCap.rows[0].id;
 
     // Salvar páginas
-    for (let i = 0; i < capitulo.paginas.length; i++) {       
-
+    for (let i = 0; i < capitulo.paginas.length; i++) {
       const relativePath = `${mangaId}/paginas/pagina_${i + 1}.jpg`;
       const paginaUrl = `/api/uploads/${relativePath}`;
 
       await client.query(
         `INSERT INTO paginas (capitulo_id, numero, imagem)
          VALUES ($1, $2, $3)`,
-        [capituloId, i + 1, paginaUrl	]
+        [capituloId, i + 1, paginaUrl]
       );
     }
 
@@ -76,13 +75,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET - Buscar mangá específico com capítulos e páginas
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// ✅ GET corrigido
+export async function GET(request: NextRequest, context: any) {
   try {
-    const { id } = await params;
+    const { id } = context.params as { id: string };
     const mangaId = parseInt(id);
 
     if (isNaN(mangaId)) {
@@ -127,7 +123,6 @@ export async function GET(
       capitulos,
     };
 
-
     client.release();
     return NextResponse.json(manga);
   } catch (error) {
@@ -136,13 +131,10 @@ export async function GET(
   }
 }
 
-// DELETE - Deletar mangá
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// ✅ DELETE corrigido
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { id } = await params;
+    const { id } = context.params as { id: string };
     const mangaId = parseInt(id);
 
     if (isNaN(mangaId)) {
@@ -185,6 +177,50 @@ export async function DELETE(
     }
   } catch (error) {
     console.error('Erro ao deletar mangá:', error);
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
+  }
+}
+
+// PUT (mantido igual)
+export async function PUT(request: NextRequest, context: any) {
+  try {
+    const { id } = context.params as { id: string };
+
+    // Verificar autenticação
+    const tokenResult = verifyToken(request);
+    if (!tokenResult.success) {
+      return NextResponse.json({ error: tokenResult.error }, { status: 401 });
+    }
+
+    const mangaId = parseInt(id);
+    const { titulo, autor, generos, status } = await request.json();
+
+    const client = await pool.connect();
+
+    try {
+      await client.query('BEGIN');
+
+      await client.query(
+        `UPDATE mangas 
+         SET titulo = $1, autor = $2, generos = $3, status = $4, updated_at = NOW()
+         WHERE id = $5`,
+        [titulo, autor, generos, status, mangaId]
+      );
+
+      await client.query('COMMIT');
+
+      return NextResponse.json({
+        success: true,
+        message: 'Mangá atualizado com sucesso!',
+      });
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Erro ao editar mangá:', error);
     return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
   }
 }

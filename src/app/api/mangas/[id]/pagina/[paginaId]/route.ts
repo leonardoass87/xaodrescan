@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 import fs from 'fs';
 import path from 'path';
+import { verifyToken } from '@/lib/auth';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -13,6 +14,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; paginaId: string }> }
 ) {
   try {
+    // Verificar autenticação
+    const tokenResult = verifyToken(request);
+    if (!tokenResult.success) {
+      return NextResponse.json({ error: tokenResult.error }, { status: 401 });
+    }
+
     const { id, paginaId } = await params;
     const mangaId = parseInt(id);
     const pagId = parseInt(paginaId);

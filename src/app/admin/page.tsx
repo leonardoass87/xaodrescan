@@ -1,3 +1,7 @@
+"use client";
+
+import Link from "next/link";
+
 export default function AdminDashboard() {
   return (
     <div className="space-y-4 md:space-y-6">
@@ -71,18 +75,18 @@ export default function AdminDashboard() {
             Ações Rápidas
           </h2>
           <div className="space-y-3">
-            <button className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center">
+            <Link href="/admin/mangas" className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center">
               <span className="mr-2">📚</span>
-              Novo Mangá
-            </button>
-            <button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center">
+              Gerenciar Mangás
+            </Link>
+            <Link href="/admin/usuarios" className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center">
               <span className="mr-2">👥</span>
-              Novo Usuário
-            </button>
-            <button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center">
+              Gerenciar Usuários
+            </Link>
+            <Link href="/admin/relatorios" className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center">
               <span className="mr-2">📊</span>
               Relatórios
-            </button>
+            </Link>
           </div>
         </div>
 

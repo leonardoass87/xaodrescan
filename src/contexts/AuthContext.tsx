@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 
 interface User {
   id: number;
@@ -15,7 +15,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (userData: User) => void;
   logout: () => void;
-  isAdmin: () => boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,9 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('user');
   };
 
-  const isAdmin = () => {
+  const isAdmin = useMemo(() => {
     return user?.role === 'ADMIN';
-  };
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, logout, isAdmin }}>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { verifyToken } from '@/lib/auth';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -11,6 +12,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string; capituloId: string }> }
 ) {
   try {
+    // Verificar autenticação
+    const tokenResult = verifyToken(request);
+    if (!tokenResult.success) {
+      return NextResponse.json({ error: tokenResult.error }, { status: 401 });
+    }
+
     const { id, capituloId } = await params;
     const mangaId = parseInt(id);
     const capId = parseInt(capituloId);

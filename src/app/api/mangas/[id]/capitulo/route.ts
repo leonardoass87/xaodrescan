@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { verifyToken } from '@/lib/auth';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -37,6 +38,12 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Verificar autenticação
+    const tokenResult = verifyToken(request);
+    if (!tokenResult.success) {
+      return NextResponse.json({ error: tokenResult.error }, { status: 401 });
+    }
+
     console.log('🔍 API - Iniciando criação de capítulo');
     
     const { id } = await params;

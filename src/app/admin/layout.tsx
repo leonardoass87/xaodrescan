@@ -23,7 +23,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && (!user || !isAdmin())) {
+    if (!isLoading && (!user || !isAdmin)) {
       router.push('/login');
     }
   }, [user, isAdmin, isLoading, router]);
@@ -38,7 +38,7 @@ export default function AdminLayout({
   }
 
   // Se não é admin, não renderizar nada (será redirecionado)
-  if (!user || !isAdmin()) {
+  if (!user || !isAdmin) {
     return null;
   }
 

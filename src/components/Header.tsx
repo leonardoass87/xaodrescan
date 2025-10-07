@@ -98,7 +98,7 @@ export default function Header() {
               </Link>
             </li>
           )}
-          {!isLoading && isAdmin() && (
+          {!isLoading && isAdmin && (
             <li>
               <Link 
                 href="/admin" 
@@ -130,7 +130,7 @@ export default function Header() {
           <>
             <span className="text-white text-sm">
               Olá, <span className="text-[var(--color-red)] font-semibold">{user.nome}</span>
-              {isAdmin() && <span className="ml-2 text-xs bg-[var(--color-red)] px-2 py-1 rounded">ADMIN</span>}
+              {isAdmin && <span className="ml-2 text-xs bg-[var(--color-red)] px-2 py-1 rounded">ADMIN</span>}
             </span>
             <button 
               onClick={logout}
@@ -237,7 +237,7 @@ export default function Header() {
                 </Link>
               </li>
             )}
-            {!isLoading && isAdmin() && (
+            {!isLoading && isAdmin && (
               <li>
                 <Link 
                   href="/admin" 
@@ -270,7 +270,7 @@ export default function Header() {
                   </div>
                   <div className="flex-1">
                     <div className="text-white font-semibold text-sm">{user.nome}</div>
-                    {isAdmin() && (
+                    {isAdmin && (
                       <span className="inline-flex items-center gap-1 text-xs bg-gradient-to-r from-red-500 to-red-600 text-white px-2 py-1 rounded-full">
                         <span>👑</span>
                         ADMIN

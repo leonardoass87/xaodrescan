@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # volume persistente fora do runner (garante que o banco nunca zere)
+      # Caminho fixo no host → mantém o banco mesmo após rebuilds e deploys do Runner
       - /home/lab/docker-volumes/xaodrescan/postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U xaodrescan_user -d xaodrescan"]
