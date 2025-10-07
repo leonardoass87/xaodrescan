@@ -62,7 +62,11 @@ export default function LoginPage() {
           }
         }, 100);
       } else {
-        setError(data.error || "Erro ao fazer login");
+        if (data.requiresEmailConfirmation) {
+          setError("Email não confirmado. Verifique sua caixa de entrada e clique no link de confirmação antes de fazer login.");
+        } else {
+          setError(data.error || "Erro ao fazer login");
+        }
       }
     } catch (error) {
       setError("Erro de conexão. Tente novamente.");

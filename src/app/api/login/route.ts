@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
         email: true,
         senha: true,
         role: true,
+        email_confirmado: true,
         created_at: true,
       }
     });
@@ -53,12 +54,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verificar se o email foi confirmado
+    if (!user.email_confirmado) {
+      return NextResponse.json(
+        { 
+          error: 'Email não confirmado. Verifique sua caixa de entrada e confirme seu email antes de fazer login.',
+          requiresEmailConfirmation: true 
+        },
+        { status: 403 }
+      );
+    }
+
     // Gerar token JWT
     const token = generateToken({
       id: user.id,
       email: user.email,
       role: user.role,
-      userId: user.id
+      userId: user.id,
+      email_confirmado: user.email_confirmado
     });
 
     // Remover senha do objeto de resposta
