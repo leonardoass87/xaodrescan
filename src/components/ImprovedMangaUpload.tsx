@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import UploadErrorHandler from './UploadErrorHandler';
+import EnhancedPageManager from './EnhancedPageManager';
 
 interface ImprovedMangaUploadProps {
   onSuccess: (result: any) => void;
@@ -17,6 +18,10 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
     capituloNumero: 1,
     capituloTitulo: ''
   });
+  
+  const [capa, setCapa] = useState<File | null>(null);
+  const [previewCapa, setPreviewCapa] = useState<string | null>(null);
+  const [paginas, setPaginas] = useState<any[]>([]);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -38,27 +43,89 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
     timeout: 120000
   });
 
+  const handleCapaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setCapa(file);
+      
+      // Criar preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewCapa(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
     if (!fileList) return;
 
     try {
-      await uploadFiles(Array.from(fileList));
+      console.log('📤 Processando', fileList.length, 'arquivos localmente');
+      console.log('📊 Estado atual de paginas:', paginas.length);
+      
+      // Processar arquivos diretamente sem upload
+      const newPaginas = Array.from(fileList).map((file, index) => ({
+        id: `pagina_${Date.now()}_${index}`,
+        file,
+        preview: URL.createObjectURL(file),
+        numero: paginas.length + index + 1,
+        legenda: '',
+        progress: 100,
+        status: 'completed' as const
+      }));
+      
+      console.log('📄 Novas páginas criadas:', newPaginas.length);
+      setPaginas(prev => {
+        const updated = [...prev, ...newPaginas];
+        console.log('📊 Estado atualizado:', updated.length, 'páginas');
+        return updated;
+      });
     } catch (error: any) {
-      console.error('Erro no upload:', error);
+      console.error('Erro no processamento:', error);
     }
   };
+
+  // Funções para gerenciar páginas
+  const handlePaginasChange = (novasPaginas: any[]) => {
+    setPaginas(novasPaginas);
+  };
+
+  const handleRemovePagina = (id: string) => {
+    setPaginas(prev => prev.filter(p => p.id !== id));
+  };
+
+  const handleUpdateLegenda = (id: string, legenda: string) => {
+    setPaginas(prev => prev.map(p => 
+      p.id === id ? { ...p, legenda } : p
+    ));
+  };
+
+  const handleAddMorePages = (newPages: any[]) => {
+    setPaginas(prev => [...prev, ...newPages]);
+  };
+
+  // Debug do estado de páginas
+  useEffect(() => {
+    console.log('🔍 Estado de páginas atualizado:', paginas.length, 'páginas');
+  }, [paginas]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (files.length === 0) {
-      setSubmitError('Selecione pelo menos um arquivo para upload');
+    if (!formData.titulo) {
+      setSubmitError('Título é obrigatório');
       return;
     }
-
-    if (files.some(f => f.status === 'error')) {
-      setSubmitError('Corrija os erros de upload antes de continuar');
+    
+    if (!capa) {
+      setSubmitError('Capa é obrigatória');
+      return;
+    }
+    
+    if (paginas.length === 0) {
+      setSubmitError('Adicione pelo menos uma página ao capítulo');
       return;
     }
 
@@ -72,13 +139,25 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
       formDataToSend.append('autor', formData.autor);
       formDataToSend.append('generos', formData.generos);
       formDataToSend.append('status', formData.status);
+      
+      // Adicionar capa (obrigatória)
+      if (capa) {
+        formDataToSend.append('capa', capa);
+        console.log('📷 Capa adicionada ao FormData:', capa.name, capa.size, 'bytes');
+      } else {
+        throw new Error('Capa é obrigatória');
+      }
+      
       formDataToSend.append('capitulo.numero', formData.capituloNumero.toString());
       formDataToSend.append('capitulo.titulo', formData.capituloTitulo);
 
-      // Adicionar arquivos
-      files.forEach((fileProgress) => {
-        formDataToSend.append('capitulo.paginas', fileProgress.file);
+      // Adicionar arquivos das páginas (na ordem correta)
+      paginas.forEach((pagina, index) => {
+        formDataToSend.append('capitulo.paginas', pagina.file);
+        console.log(`📄 Página ${index + 1} adicionada:`, pagina.file.name, pagina.file.size, 'bytes');
       });
+      
+      console.log('📦 FormData preparado com', paginas.length, 'páginas');
 
       // Enviar para API
       const response = await fetch('/api/mangas', {
@@ -103,6 +182,9 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
         capituloNumero: 1,
         capituloTitulo: ''
       });
+      setCapa(null);
+      setPreviewCapa(null);
+      setPaginas([]);
       clearFiles();
 
     } catch (error: any) {
@@ -125,6 +207,54 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
       <h2 className="text-2xl font-bold text-white mb-6">Criar Novo Mangá (Sistema Melhorado)</h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Upload de Capa */}
+        <div>
+          <label className="block text-white text-sm font-medium mb-2">
+            Capa do Mangá *
+          </label>
+          <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-gray-500 transition-colors bg-gray-800/50">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleCapaChange}
+              className="hidden"
+              id="capa-upload"
+            />
+            <label htmlFor="capa-upload" className="cursor-pointer">
+              {previewCapa ? (
+                <div className="space-y-4">
+                  <div className="relative">
+                    <img 
+                      src={previewCapa} 
+                      alt="Preview da capa" 
+                      className="mx-auto max-h-48 rounded-lg border border-gray-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCapa(null);
+                        setPreviewCapa(null);
+                      }}
+                      className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm"
+                      title="Remover capa"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <p className="text-green-400">✓ Capa selecionada: {capa?.name}</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="text-4xl text-gray-400">📷</div>
+                  <p className="text-white">Clique para selecionar a capa</p>
+                  <p className="text-gray-400 text-sm">PNG, JPG, JPEG (máx. 10MB)</p>
+                </div>
+              )}
+            </label>
+          </div>
+        </div>
+
         {/* Informações do Mangá */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -217,88 +347,43 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
         <div>
           <h3 className="text-lg font-medium text-white mb-4">Páginas do Capítulo</h3>
           
-          {/* Seleção de arquivos */}
-          <div className="mb-4">
-            <input
-              type="file"
-              multiple
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileSelect}
-              className="hidden"
-              id="file-input"
-              disabled={isUploading || isSubmitting}
-            />
-            <label
-              htmlFor="file-input"
-              className={`inline-block px-4 py-2 rounded cursor-pointer transition-colors ${
-                isUploading || isSubmitting
-                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-            >
-              {isUploading ? 'Enviando...' : 'Selecionar Arquivos'}
-            </label>
-            <span className="ml-2 text-gray-400 text-sm">
-              Máximo: 20 arquivos, 10MB por arquivo
-            </span>
-          </div>
-
-          {/* Lista de arquivos */}
-          {files.length > 0 && (
-            <div className="space-y-3 mb-4">
-              {files.map((fileProgress, index) => (
-                <div key={index} className="bg-gray-800 p-4 rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-white text-sm truncate max-w-xs">
-                      {fileProgress.file.name}
-                    </span>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-400">
-                        {(fileProgress.file.size / 1024 / 1024).toFixed(1)}MB
-                      </span>
-                      {!isUploading && !isSubmitting && (
-                        <button
-                          onClick={() => removeFile(index)}
-                          className="text-red-400 hover:text-red-300 text-xs"
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Barra de progresso individual */}
-                  <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-                    <div
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        fileProgress.status === 'completed' ? 'bg-green-500' :
-                        fileProgress.status === 'error' ? 'bg-red-500' :
-                        fileProgress.status === 'uploading' ? 'bg-blue-500' :
-                        'bg-gray-600'
-                      }`}
-                      style={{ width: `${fileProgress.progress}%` }}
-                    />
-                  </div>
-
-                  <div className="flex justify-between items-center text-xs">
-                    <span className={`${
-                      fileProgress.status === 'completed' ? 'text-green-400' :
-                      fileProgress.status === 'error' ? 'text-red-400' :
-                      fileProgress.status === 'uploading' ? 'text-blue-400' :
-                      'text-gray-400'
-                    }`}>
-                      {fileProgress.status === 'completed' ? 'Concluído' :
-                       fileProgress.status === 'error' ? `Erro: ${fileProgress.error}` :
-                       fileProgress.status === 'uploading' ? 'Enviando...' :
-                       'Aguardando'}
-                    </span>
-                    <span className="text-gray-400">
-                      {fileProgress.progress}%
-                    </span>
-                  </div>
-                </div>
-              ))}
+          {/* Seleção inicial de arquivos */}
+          {paginas.length === 0 && (
+            <div className="mb-4">
+              <input
+                type="file"
+                multiple
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="file-input"
+                disabled={isUploading || isSubmitting}
+              />
+              <label
+                htmlFor="file-input"
+                className={`inline-block px-4 py-2 rounded cursor-pointer transition-colors ${
+                  isUploading || isSubmitting
+                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                {isUploading ? 'Enviando...' : 'Selecionar Arquivos Iniciais'}
+              </label>
+              <span className="ml-2 text-gray-400 text-sm">
+                Máximo: 20 arquivos, 10MB por arquivo
+              </span>
             </div>
+          )}
+
+          {/* Gerenciador de páginas melhorado */}
+          {paginas.length > 0 && (
+            <EnhancedPageManager
+              paginas={paginas}
+              onPaginasChange={handlePaginasChange}
+              onRemove={handleRemovePagina}
+              onUpdateLegenda={handleUpdateLegenda}
+              onAddMore={handleAddMorePages}
+            />
           )}
 
           {/* Progresso total */}
@@ -342,10 +427,10 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
           
           <button
             type="submit"
-            disabled={isUploading || isSubmitting || files.length === 0 || files.some(f => f.status === 'error')}
+            disabled={isUploading || isSubmitting || paginas.length === 0}
             className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
           >
-            {isSubmitting ? 'Criando...' : 'Criar Mangá'}
+            {isSubmitting ? 'Criando...' : `Criar Mangá (${paginas.length} páginas)`}
           </button>
         </div>
       </form>

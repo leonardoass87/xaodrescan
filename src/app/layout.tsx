@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import NotificationContainer from "@/components/NotificationContainer";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import NoSSR from "@/components/NoSSR";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,18 +40,21 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning={true}
       >
-        <AuthProvider>
-          <NotificationProvider>
-            <LoadingSpinner />
-            <Header />
-            <div className="pt-16 pb-12 min-h-screen bg-[var(--color-bg)]">
-              {children}
-            </div>
-            <Footer />
-            <NotificationContainer />
-          </NotificationProvider>
-        </AuthProvider>
+        <NoSSR>
+          <AuthProvider>
+            <NotificationProvider>
+              <LoadingSpinner />
+              <Header />
+              <div className="pt-16 pb-12 min-h-screen bg-[var(--color-bg)]">
+                {children}
+              </div>
+              <Footer />
+              <NotificationContainer />
+            </NotificationProvider>
+          </AuthProvider>
+        </NoSSR>
       </body>
     </html>
   );

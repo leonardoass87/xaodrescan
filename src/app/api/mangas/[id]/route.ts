@@ -78,7 +78,8 @@ export async function POST(request: NextRequest) {
 // ✅ GET corrigido
 export async function GET(request: NextRequest, context: any) {
   try {
-    const { id } = context.params as { id: string };
+    const params = await context.params;
+    const { id } = params as { id: string };
     const mangaId = parseInt(id);
 
     if (isNaN(mangaId)) {
@@ -134,7 +135,8 @@ export async function GET(request: NextRequest, context: any) {
 // ✅ DELETE corrigido
 export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { id } = context.params as { id: string };
+    const params = await context.params;
+    const { id } = params as { id: string };
     const mangaId = parseInt(id);
 
     if (isNaN(mangaId)) {

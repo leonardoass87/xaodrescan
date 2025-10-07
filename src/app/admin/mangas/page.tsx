@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useNotificationContext } from '@/contexts/NotificationContext';
 import PageManager from '@/components/PageManager';
+import ImprovedMangaUpload from '@/components/ImprovedMangaUpload';
 
 interface Pagina {
   id: number;
@@ -47,7 +48,7 @@ export default function MangasPage() {
   const [filtro, setFiltro] = useState("");
   const [statusFiltro, setStatusFiltro] = useState("");
   const [visualizacao, setVisualizacao] = useState<"grid" | "lista">("grid");
-  const [modalAberto, setModalAberto] = useState(false);
+  const [modalUpPlusAberto, setModalUpPlusAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [formulario, setFormulario] = useState({
     titulo: "",
@@ -99,9 +100,6 @@ export default function MangasPage() {
     }
   };
 
-  const handleVisualizar = (manga: Manga) => {
-    info("Visualizar Mangá", `${manga.titulo} - ${manga.capitulos?.length || 0} capítulos. Funcionalidade em desenvolvimento.`);
-  };
 
   // Função para carregar mangás da API
   const carregarMangas = async () => {
@@ -393,7 +391,7 @@ export default function MangasPage() {
         paginas: []
       });
       setPreviewCapa(null);
-      setModalAberto(false);
+      // Modal antigo removido
       
       success('Mangá Criado', 'O mangá foi adicionado com sucesso!');
       
@@ -406,7 +404,7 @@ export default function MangasPage() {
   };
 
   const fecharModal = () => {
-    setModalAberto(false);
+    // Modal antigo removido
     setFormulario({
       titulo: "",
       autor: "",
@@ -420,6 +418,16 @@ export default function MangasPage() {
       paginas: []
     });
     setPreviewCapa(null);
+  };
+
+  const fecharModalUpPlus = () => {
+    setModalUpPlusAberto(false);
+  };
+
+  const handleUpPlusSuccess = async (result: any) => {
+    success('Mangá Criado', 'O mangá foi adicionado com sucesso usando o novo sistema!');
+    await carregarMangas(); // Recarregar lista
+    setModalUpPlusAberto(false);
   };
 
   if (carregando) {
@@ -441,14 +449,17 @@ export default function MangasPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-white">Gerenciar Mangás</h1>
           <p className="text-gray-400 mt-1 text-sm md:text-base">Administre todo o catálogo de mangás</p>
         </div>
-        <button 
-          onClick={() => setModalAberto(true)}
-          className="bg-red-500 hover:bg-red-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center text-sm md:text-base"
-        >
-          <span className="mr-2">➕</span>
-          <span className="hidden sm:inline">Novo Mangá</span>
-          <span className="sm:hidden">Novo</span>
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setModalUpPlusAberto(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center text-sm md:text-base"
+            title="Novo sistema de upload com progresso e validações melhoradas"
+          >
+            <span className="mr-2">🚀</span>
+            <span className="hidden sm:inline">Up +</span>
+            <span className="sm:hidden">Up+</span>
+          </button>
+        </div>
       </div>
 
       {/* Filtros e Controles */}
@@ -513,8 +524,8 @@ export default function MangasPage() {
                   alt={manga.titulo}
                   className="w-full h-32 sm:h-40 md:h-48 object-cover"
                 />
-                <div className="absolute top-1 right-1">
-                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(manga.status)}`}>
+                <div className="absolute bottom-2 left-2">
+                  <span className={`px-1 py-0.5 rounded text-xs font-medium ${getStatusColor(manga.status)}`}>
                     {getStatusText(manga.status).slice(0, 3)}
                   </span>
                 </div>
@@ -534,13 +545,6 @@ export default function MangasPage() {
                       title="Deletar"
                     >
                       🗑️
-                    </button>
-                    <button 
-                      onClick={() => handleVisualizar(manga)}
-                      className="bg-gray-500/90 hover:bg-gray-500 text-white p-1.5 rounded-lg transition-colors text-sm"
-                      title="Ver"
-                    >
-                      👁️
                     </button>
                   </div>
                 </div>
@@ -572,12 +576,6 @@ export default function MangasPage() {
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-2 rounded text-xs font-medium transition-colors"
                   >
                     ✏️ Editar
-                  </button>
-                  <button 
-                    onClick={() => handleVisualizar(manga)}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-1.5 px-2 rounded text-xs font-medium transition-colors"
-                  >
-                    👁️ Ver
                   </button>
                   <button 
                     onClick={() => handleDeletar(manga)}
@@ -620,7 +618,7 @@ export default function MangasPage() {
                     </td>
                     <td className="p-2 md:p-4 text-gray-300 text-xs md:text-sm hidden sm:table-cell truncate">{manga.autor}</td>
                     <td className="p-2 md:p-4">
-                      <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(manga.status)}`}>
+                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${getStatusColor(manga.status)}`}>
                         {getStatusText(manga.status)}
                       </span>
                     </td>
@@ -642,13 +640,6 @@ export default function MangasPage() {
                           title="Deletar mangá"
                         >
                           🗑️
-                        </button>
-                        <button 
-                          onClick={() => handleVisualizar(manga)}
-                          className="text-gray-400 hover:text-gray-300 p-1 md:p-2 hover:bg-gray-500/10 rounded transition-colors text-sm md:text-base"
-                          title="Visualizar mangá"
-                        >
-                          👁️
                         </button>
                       </div>
                     </td>
@@ -684,13 +675,6 @@ export default function MangasPage() {
       <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-4 md:p-6">
         <h3 className="text-lg font-bold text-white mb-4">⚡ Ações Rápidas</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <button 
-            onClick={() => setModalAberto(true)}
-            className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            <span>➕</span>
-            <span className="text-sm font-medium">Novo Mangá</span>
-          </button>
           
           <button 
             onClick={() => {
@@ -724,8 +708,8 @@ export default function MangasPage() {
         </div>
       </div>
 
-      {/* Modal de Novo Mangá */}
-      {modalAberto && (
+      {/* Modal antigo removido */}
+      {false && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
           <div className="bg-gradient-to-br from-black/90 to-red-900/20 border border-red-500/30 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
@@ -755,7 +739,7 @@ export default function MangasPage() {
                       {previewCapa ? (
                         <div className="space-y-4">
                           <img 
-                            src={previewCapa} 
+                            src={previewCapa || ''} 
                             alt="Preview" 
                             className="mx-auto max-h-48 rounded-lg border border-red-500/30"
                           />
@@ -920,6 +904,34 @@ export default function MangasPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal do Novo Sistema (Up +) */}
+      {modalUpPlusAberto && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+          <div className="bg-gradient-to-br from-black/90 to-blue-900/20 border border-blue-500/30 rounded-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">🚀 Novo Sistema de Upload</h2>
+                  <p className="text-gray-400 text-sm mt-1">
+                    Sistema melhorado com progresso individual, validações robustas e FormData
+                  </p>
+                </div>
+                <button 
+                  onClick={fecharModalUpPlus}
+                  className="text-gray-400 hover:text-white text-2xl transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <ImprovedMangaUpload
+                onSuccess={handleUpPlusSuccess}
+              />
             </div>
           </div>
         </div>

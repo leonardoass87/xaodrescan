@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      ffavoritos: favoritos.map((f: any) => ({
+      favoritos: favoritos.map((f: any) => ({
         id: f.id,
         data_favorito: f.data_favorito,
         manga_id: f.manga.id,

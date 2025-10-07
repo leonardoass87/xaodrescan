@@ -18,6 +18,7 @@ export const useFavoritos = () => {
   const [favoritos, setFavoritos] = useState<Favorito[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   // Carregar favoritos do usuário
   const carregarFavoritos = async () => {
@@ -31,12 +32,17 @@ export const useFavoritos = () => {
       const data = await response.json();
 
       if (data.success) {
-        setFavoritos(data.favoritos);
+        setFavoritos(data.favoritos || []);
+        setInitialized(true);
       } else {
         setError(data.error || 'Erro ao carregar favoritos');
+        setFavoritos([]);
+        setInitialized(true);
       }
     } catch (err) {
       setError('Erro de conexão');
+      setFavoritos([]);
+      setInitialized(true);
     } finally {
       setLoading(false);
     }
@@ -101,6 +107,9 @@ export const useFavoritos = () => {
 
   // Verificar se um mangá está favoritado
   const isFavoritado = (mangaId: number) => {
+    if (!initialized || !favoritos || !Array.isArray(favoritos)) {
+      return false;
+    }
     return favoritos.some(fav => fav.manga_id === mangaId);
   };
 
@@ -116,18 +125,19 @@ export const useFavoritos = () => {
   // Carregar favoritos quando o usuário mudar
   useEffect(() => {
     if (user?.id) {
-      // Debug log removido por segurança
+      setInitialized(false);
       carregarFavoritos();
     } else {
-      // Debug log removido por segurança
       setFavoritos([]);
+      setInitialized(true);
     }
   }, [user?.id]);
 
   return {
-    favoritos,
+    favoritos: favoritos || [],
     loading,
     error,
+    initialized,
     carregarFavoritos,
     adicionarFavorito,
     removerFavorito,

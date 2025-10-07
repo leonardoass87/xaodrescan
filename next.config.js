@@ -5,13 +5,8 @@ const nextConfig = {
     unoptimized: true,
     domains: ['localhost'],
   },
-  // Configurações para uploads grandes
-  api: {
-    bodyParser: { 
-      sizeLimit: '100mb' // Aumenta limite de upload para 100MB
-    },
-    responseLimit: false, // Remove limite de resposta
-  },
+  // Configurações para uploads grandes (Next.js 15+)
+  // As configurações de bodyParser agora são feitas nos Route Handlers
   // Otimizações de performance
   experimental: {
     optimizeCss: true,

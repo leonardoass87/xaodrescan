@@ -229,6 +229,97 @@ export default function EditarMangaPage() {
     setOrdemPaginas(novaOrdem);
   };
 
+  // Função para ordenar páginas por nome
+  const handleOrdenarPaginasPorNome = async () => {
+    if (!manga || !capituloAtual || !capituloAtual.paginas || capituloAtual.paginas.length === 0) {
+      warning('Nenhuma Página', 'Não há páginas para ordenar neste capítulo.');
+      return;
+    }
+
+    try {
+      // Ordenar páginas por nome do arquivo (assumindo que o nome está na URL da imagem)
+      const paginasOrdenadas = [...capituloAtual.paginas].sort((a, b) => {
+        const nomeA = a.imagem.split('/').pop() || '';
+        const nomeB = b.imagem.split('/').pop() || '';
+        return nomeA.localeCompare(nomeB, undefined, { numeric: true, sensitivity: 'base' });
+      });
+
+      // Renumerar as páginas
+      const paginasRenumeradas = paginasOrdenadas.map((pagina, index) => ({
+        ...pagina,
+        numero: index + 1
+      }));
+
+      // Salvar nova ordem no banco
+      const response = await fetch(`/api/mangas/${manga.id}/capitulo/${capituloAtual.id}/reordenar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paginas: paginasRenumeradas.map(p => ({ id: p.id, numero: p.numero }))
+        }),
+      });
+
+      if (response.ok) {
+        // Atualizar estado local do mangá
+        setManga(prev => ({
+          ...prev!,
+          capitulos: prev!.capitulos.map(c => 
+            c.id === capituloAtual.id 
+              ? { ...c, paginas: paginasRenumeradas }
+              : c
+          )
+        }));
+        
+        success('Páginas Ordenadas', 'As páginas foram ordenadas por nome do arquivo.');
+      } else {
+        throw new Error('Falha ao salvar ordenação');
+      }
+    } catch (err) {
+      console.error('Erro ao ordenar páginas:', err);
+      error('Erro ao Ordenar', 'Falha ao ordenar as páginas por nome.');
+    }
+  };
+
+  // Função para excluir capítulo
+  const handleExcluirCapitulo = async (capituloId: number) => {
+    if (!manga) return;
+    
+    const capitulo = manga.capitulos.find(c => c.id === capituloId);
+    if (!capitulo) return;
+
+    if (!confirm(`Tem certeza que deseja excluir o Capítulo ${capitulo.numero}?\n\nEsta ação não pode ser desfeita e todas as páginas serão removidas.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/mangas/${manga.id}/capitulo/${capituloId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Atualizar estado local
+        setManga(prev => ({
+          ...prev!,
+          capitulos: prev!.capitulos.filter(c => c.id !== capituloId)
+        }));
+
+        // Se o capítulo excluído era o selecionado, limpar seleção
+        if (capituloSelecionado === capituloId) {
+          setCapituloSelecionado(null);
+        }
+
+        success('Capítulo Excluído', `O Capítulo ${capitulo.numero} foi excluído com sucesso.`);
+      } else {
+        throw new Error('Falha ao excluir capítulo');
+      }
+    } catch (err) {
+      console.error('Erro ao excluir capítulo:', err);
+      error('Erro ao Excluir', 'Falha ao excluir o capítulo.');
+    }
+  };
+
   // Funções para novo capítulo
   const handleAbrirModalNovoCapitulo = () => {
     console.log('🔍 Debug - Abrindo modal de novo capítulo');
@@ -654,22 +745,22 @@ export default function EditarMangaPage() {
   return (
     <div className="space-y-6 p-4 md:p-0">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white">Editar Mangá</h1>
-          <p className="text-gray-400 mt-1 text-sm md:text-base">{manga.titulo}</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Editar Mangá</h1>
+          <p className="text-gray-400 mt-1 text-sm md:text-base truncate">{manga.titulo}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button 
             onClick={() => router.push('/admin/mangas')}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors text-sm sm:text-base"
           >
             ← Voltar
           </button>
           <button 
             onClick={handleSalvarOrdem}
             disabled={salvando}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 text-sm sm:text-base"
           >
             {salvando ? 'Salvando...' : '💾 Salvar Ordem'}
           </button>
@@ -678,13 +769,13 @@ export default function EditarMangaPage() {
 
       {/* Informações do Mangá */}
       <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-4 md:p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="flex items-center gap-3">
-            <img src={manga.capa} alt={manga.titulo} className="w-16 h-20 object-cover rounded" />
-            <div>
-              <h3 className="text-white font-bold">{manga.titulo}</h3>
-              <p className="text-gray-400 text-sm">{manga.autor}</p>
-              <p className="text-gray-400 text-xs">
+            <img src={manga.capa} alt={manga.titulo} className="w-16 h-20 object-cover rounded flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <h3 className="text-white font-bold text-sm sm:text-base truncate">{manga.titulo}</h3>
+              <p className="text-gray-400 text-xs sm:text-sm truncate">{manga.autor}</p>
+              <p className="text-gray-400 text-xs truncate">
                 {manga.generos?.join(', ')} • {manga.capitulos.length} capítulos
               </p>
             </div>
@@ -709,35 +800,49 @@ export default function EditarMangaPage() {
 
       {/* Seletor de Capítulos */}
       <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-4 md:p-6">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
           <h3 className="text-lg font-bold text-white">📖 Selecionar Capítulo</h3>
           <button
             onClick={handleAbrirModalNovoCapitulo}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm sm:text-base w-full sm:w-auto justify-center"
           >
             <span>➕</span>
             <span>Novo Capítulo</span>
           </button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
           {manga.capitulos.map((capitulo) => (
-            <button
+            <div
               key={capitulo.id}
-              onClick={() => setCapituloSelecionado(capitulo.id)}
-              className={`p-3 rounded-lg border transition-all ${
+              className={`relative p-2 sm:p-3 rounded-lg border transition-all ${
                 capituloSelecionado === capitulo.id
                   ? 'bg-red-500/20 border-red-500 text-white'
                   : 'bg-black/50 border-red-500/30 text-gray-300 hover:border-red-500/50'
               }`}
             >
-              <div className="text-center">
-                <div className="font-bold text-sm">Cap. {capitulo.numero}</div>
-                <div className="text-xs text-gray-400 truncate">{capitulo.titulo}</div>
+              <button
+                onClick={() => setCapituloSelecionado(capitulo.id)}
+                className="w-full text-center min-h-[60px] flex flex-col justify-center"
+              >
+                <div className="font-bold text-xs sm:text-sm">Cap. {capitulo.numero}</div>
+                <div className="text-xs text-gray-400 truncate mt-1">{capitulo.titulo}</div>
                 <div className="text-xs text-gray-500 mt-1">
                   {capitulo.paginas?.length || 0} páginas
                 </div>
-              </div>
-            </button>
+              </button>
+              
+              {/* Botão de excluir capítulo */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleExcluirCapitulo(capitulo.id);
+                }}
+                className="absolute top-1 right-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 p-1 rounded text-xs transition-colors"
+                title="Excluir capítulo"
+              >
+                🗑️
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -745,19 +850,29 @@ export default function EditarMangaPage() {
       {/* Editor de Páginas */}
       {capituloAtual && (
         <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-4 md:p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-white">
-              📄 Páginas do Capítulo {capituloAtual.numero}
-            </h3>
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-4 mb-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+              <h3 className="text-lg font-bold text-white">
+                📄 Páginas do Capítulo {capituloAtual.numero}
+              </h3>
               <div className="text-sm text-gray-400">
                 {paginasOrdenadas.length} página(s) • 
                 {capituloAtual.editado_por && ` Editado por: ${capituloAtual.editado_por}`}
                 {capituloAtual.updated_at && ` em ${formatarData(capituloAtual.updated_at)}`}
               </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={handleOrdenarPaginasPorNome}
+                className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm w-full sm:w-auto justify-center"
+                title="Ordenar páginas por nome do arquivo"
+              >
+                <span>📝</span>
+                <span>Ordenar por Nome</span>
+              </button>
               <button
                 onClick={handleAbrirModalAdicionarPaginas}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm w-full sm:w-auto justify-center"
                 title="Adicionar páginas ao capítulo"
               >
                 <span>➕</span>
@@ -771,33 +886,33 @@ export default function EditarMangaPage() {
               <p>Nenhuma página encontrada neste capítulo.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
               {paginasOrdenadas.map((pagina, index) => (
                 <div key={pagina.id} className="bg-black/50 border border-red-500/20 rounded-lg overflow-hidden">
                   <div className="relative">
                     <img 
                       src={pagina.imagem} 
                       alt={`Página ${pagina.numero}`}
-                      className="w-full h-48 object-cover"
+                      className="w-full h-32 sm:h-40 md:h-48 object-cover"
                     />
-                    <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-bold">
+                    <div className="absolute top-1 left-1 bg-black/70 text-white px-1 py-0.5 rounded text-xs font-bold">
                       #{index + 1}
                     </div>
-                    <div className="absolute top-2 right-2 bg-red-500/90 text-white px-2 py-1 rounded text-xs">
+                    <div className="absolute top-1 right-1 bg-red-500/90 text-white px-1 py-0.5 rounded text-xs">
                       Página {pagina.numero}
                     </div>
                   </div>
                   
-                  <div className="p-3">
+                  <div className="p-2 sm:p-3">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-white text-sm font-medium">
+                      <span className="text-white text-xs sm:text-sm font-medium truncate">
                         Página {pagina.numero}
                       </span>
                       <div className="flex gap-1">
                         <button
                           onClick={() => handleMoverPagina(pagina.id, 'up')}
                           disabled={index === 0}
-                          className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 p-1 rounded text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 p-1 rounded text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           title="Mover para cima"
                         >
                           ↑
@@ -805,14 +920,14 @@ export default function EditarMangaPage() {
                         <button
                           onClick={() => handleMoverPagina(pagina.id, 'down')}
                           disabled={index === paginasOrdenadas.length - 1}
-                          className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 p-1 rounded text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 p-1 rounded text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           title="Mover para baixo"
                         >
                           ↓
                         </button>
                         <button
                           onClick={() => handleExcluirPagina(pagina.id)}
-                          className="bg-red-500/20 hover:bg-red-500/30 text-red-300 p-1 rounded text-xs"
+                          className="bg-red-500/20 hover:bg-red-500/30 text-red-300 p-1 rounded text-xs transition-colors"
                           title="Excluir página"
                         >
                           🗑️
@@ -821,7 +936,7 @@ export default function EditarMangaPage() {
                     </div>
                     
                     {pagina.legenda && (
-                      <p className="text-gray-400 text-xs mb-2">{pagina.legenda}</p>
+                      <p className="text-gray-400 text-xs mb-2 truncate">{pagina.legenda}</p>
                     )}
                     
                     <div className="text-xs text-gray-500">
