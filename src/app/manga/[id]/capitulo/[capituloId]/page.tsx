@@ -315,7 +315,7 @@ export default function LeitorPage() {
           // Modo scroll - formato vertical contínuo e fluido
           <div className="w-full">
             {capitulo.paginas.map((pagina, index) => (
-              <div key={pagina.id} className="w-full flex justify-center mb-4" data-page={index}>
+              <div key={pagina.id} className="w-full flex justify-center" data-page={index}>
                 <div className="w-full max-w-7xl px-2 sm:px-4 relative">
                   {loadingImages.has(pagina.id) && (
                     <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-lg flex items-center justify-center z-10">
@@ -349,7 +349,7 @@ export default function LeitorPage() {
             ))}
             
             {/* Botões de navegação no final */}
-            <div className="w-full flex justify-center mt-8 mb-8">
+            <div className="w-full flex justify-center mt-4">
               <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-6 max-w-2xl w-full">
                 <div className="text-center mb-4">
                   <h3 className="text-xl font-bold text-white mb-2">🎉 Capítulo Concluído!</h3>

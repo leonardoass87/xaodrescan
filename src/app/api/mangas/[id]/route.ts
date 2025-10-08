@@ -119,6 +119,12 @@ export async function GET(request: NextRequest, context: any) {
       });
     }
 
+    // Incrementar visualizações automaticamente quando o mangá é acessado
+    await client.query(
+      `UPDATE mangas SET visualizacoes = visualizacoes + 1 WHERE id = $1`,
+      [mangaId]
+    );
+
     const manga = {
       ...mangaResult.rows[0],
       capitulos,

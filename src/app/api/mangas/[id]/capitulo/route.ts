@@ -53,15 +53,13 @@ export async function POST(
     const { id } = await params;
     const mangaId = parseInt(id);
     const body = await request.json();
-    const { numero, titulo, paginas, editado_por, editado_em } = body;
+    const { numero, titulo, paginas } = body;
     
     console.log('📥 API - Dados recebidos:', {
       mangaId,
       numero,
       titulo,
-      paginasCount: paginas?.length,
-      editado_por,
-      editado_em
+      paginasCount: paginas?.length
     });
 
     if (isNaN(mangaId)) {
@@ -125,10 +123,10 @@ export async function POST(
       // Inserir capítulo
       // Debug log removido por segurança
       const capituloResult = await client.query(`
-        INSERT INTO capitulos (manga_id, numero, titulo, data_publicacao, editado_por, updated_at)
-        VALUES ($1, $2, $3, NOW(), $4, $5)
+        INSERT INTO capitulos (manga_id, numero, titulo, data_publicacao, updated_at)
+        VALUES ($1, $2, $3, NOW(), NOW())
         RETURNING id
-      `, [mangaId, numero, titulo, editado_por, editado_em]);
+      `, [mangaId, numero, titulo]);
 
       const capituloId = capituloResult.rows[0].id;
       console.log('✅ API - Capítulo inserido com ID:', capituloId);
@@ -147,9 +145,9 @@ export async function POST(
         
         // Debug log removido por segurança
         await client.query(`
-          INSERT INTO paginas (capitulo_id, numero, imagem, legenda, editado_por, updated_at)
-          VALUES ($1, $2, $3, $4, $5, $6)
-        `, [capituloId, i + 1, urlPagina, pagina.legenda || `Página ${i + 1}`, editado_por, editado_em]);
+          INSERT INTO paginas (capitulo_id, numero, imagem, legenda)
+          VALUES ($1, $2, $3, $4)
+        `, [capituloId, i + 1, urlPagina, pagina.legenda || `Página ${i + 1}`]);
       }
 
       console.log('✅ API - Commitando transação');
