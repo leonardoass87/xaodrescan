@@ -99,9 +99,9 @@ export async function GET(request: NextRequest, context: any) {
       return NextResponse.json({ error: 'Mangá não encontrado' }, { status: 404 });
     }
 
-    // Buscar capítulos ordenados numericamente
+    // Buscar capítulos ordenados numericamente (último capítulo primeiro)
     const capitulosResult = await client.query(
-      `SELECT * FROM capitulos WHERE manga_id = $1 ORDER BY numero::integer ASC`,
+      `SELECT * FROM capitulos WHERE manga_id = $1 ORDER BY numero::integer DESC`,
       [mangaId]
     );
 
@@ -119,11 +119,7 @@ export async function GET(request: NextRequest, context: any) {
       });
     }
 
-    // Incrementar visualizações automaticamente quando o mangá é acessado
-    await client.query(
-      `UPDATE mangas SET visualizacoes = visualizacoes + 1 WHERE id = $1`,
-      [mangaId]
-    );
+    // Visualizações são gerenciadas pelo hook useViews via /increment-view
 
     const manga = {
       ...mangaResult.rows[0],

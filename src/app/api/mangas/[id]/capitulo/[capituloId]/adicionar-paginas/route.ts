@@ -182,6 +182,11 @@ export async function POST(
 
   } catch (error) {
     console.error('❌ API - Erro geral ao adicionar páginas:', error);
-    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    return NextResponse.json({ 
+      error: 'Erro interno do servidor', 
+      details: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined
+    }, { status: 500 });
   }
 }

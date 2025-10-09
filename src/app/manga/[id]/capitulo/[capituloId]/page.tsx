@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useNotificationContext } from '@/contexts/NotificationContext';
+import { useViews } from '@/hooks/useViews';
 
 interface Pagina {
   id: number;
@@ -43,6 +44,11 @@ export default function LeitorPage() {
   const [showControls, setShowControls] = useState(true);
   const [loadingImages, setLoadingImages] = useState<Set<number>>(new Set());
   const [proximoCapitulo, setProximoCapitulo] = useState<any>(null);
+
+  // Hook para gerenciar visualizações (só incrementa quando realmente lê)
+  const { visualizacoes, loading: viewsLoading, error: viewsError } = useViews(
+    manga?.id || 0
+  );
 
   // Handlers para carregamento de imagens
   const handleImageLoad = (paginaId: number) => {
@@ -219,6 +225,9 @@ export default function LeitorPage() {
             <div className="flex items-center gap-2 sm:gap-4">
               <div className="text-xs sm:text-sm text-gray-400">
                 {paginaAtual + 1} / {totalPaginas}
+              </div>
+              <div className="text-xs sm:text-sm text-gray-400">
+                👁️ {viewsLoading ? '...' : visualizacoes.toLocaleString()}
               </div>
               
               {/* Controles apenas no desktop */}

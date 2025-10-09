@@ -6,7 +6,6 @@ import FavoritoButton from '@/components/FavoritoButton';
 import MangaImageHybrid from '@/components/MangaImageHybrid';
 import Link from 'next/link';
 import { formatDateInSaoPaulo } from '@/utils/dateFormat';
-import { useViews } from '@/hooks/useViews';
 
 interface Capitulo {
   id: number;
@@ -42,10 +41,6 @@ export default function MangaPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Hook para gerenciar visualizações
-  const { visualizacoes, loading: viewsLoading, error: viewsError } = useViews(
-    manga?.id || 0
-  );
 
   useEffect(() => {
     const carregarManga = async () => {
@@ -210,7 +205,7 @@ export default function MangaPage() {
                     {getStatusText(manga.status)}
                   </span>
                   <div className="flex items-center gap-4 text-gray-400 text-sm">
-                    <span>👁️ {viewsLoading ? 'Carregando...' : visualizacoes.toLocaleString()}</span>
+                    <span>👁️ {manga?.visualizacoes?.toLocaleString() || 0}</span>
                     <span>📄 {manga.capitulos.reduce((total, cap) => total + cap.paginas.length, 0)} páginas</span>
                   </div>
                 </div>
