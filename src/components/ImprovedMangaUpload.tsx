@@ -66,15 +66,27 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
       console.log('📊 Estado atual de paginas:', paginas.length);
       
       // Processar arquivos diretamente sem upload
-      const newPaginas = Array.from(fileList).map((file, index) => ({
-        id: `pagina_${Date.now()}_${index}`,
-        file,
-        preview: URL.createObjectURL(file),
-        numero: paginas.length + index + 1,
-        legenda: '',
-        progress: 100,
-        status: 'completed' as const
-      }));
+      const newPaginas = await Promise.all(
+        Array.from(fileList).map(async (file, index) => {
+          // Converter para base64
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          
+          return {
+            id: `pagina_${Date.now()}_${index}`,
+            file,
+            preview: base64, // Agora é base64 com data:image/... prefix
+            numero: paginas.length + index + 1,
+            legenda: '',
+            progress: 100,
+            status: 'completed' as const
+          };
+        })
+      );
       
       console.log('📄 Novas páginas criadas:', newPaginas.length);
       setPaginas(prev => {

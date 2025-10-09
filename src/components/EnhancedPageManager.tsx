@@ -59,20 +59,52 @@ export default function EnhancedPageManager({
     }
   };
 
+  // Função para converter arquivo para base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Quando novos arquivos são processados, adicionar às páginas existentes
   useEffect(() => {
     if (newFiles.length > 0) {
-      const newPaginas: PaginaUpload[] = newFiles.map((fileProgress, index) => ({
-        id: `pagina_${Date.now()}_${index}`,
-        file: fileProgress.file,
-        preview: URL.createObjectURL(fileProgress.file),
-        numero: paginas.length + index + 1,
-        legenda: ''
-      }));
+      const processFiles = async () => {
+        const newPaginas: PaginaUpload[] = [];
+        
+        for (let i = 0; i < newFiles.length; i++) {
+          const fileProgress = newFiles[i];
+          try {
+            const base64 = await fileToBase64(fileProgress.file);
+            newPaginas.push({
+              id: `pagina_${Date.now()}_${i}`,
+              file: fileProgress.file,
+              preview: base64, // Agora é base64 com data:image/... prefix
+              numero: paginas.length + i + 1,
+              legenda: ''
+            });
+          } catch (error) {
+            console.error('Erro ao converter arquivo para base64:', error);
+            // Fallback para blob URL se base64 falhar
+            newPaginas.push({
+              id: `pagina_${Date.now()}_${i}`,
+              file: fileProgress.file,
+              preview: URL.createObjectURL(fileProgress.file),
+              numero: paginas.length + i + 1,
+              legenda: ''
+            });
+          }
+        }
+        
+        onAddMore(newPaginas);
+        clearFiles();
+        setShowAddMore(false);
+      };
       
-      onAddMore(newPaginas);
-      clearFiles();
-      setShowAddMore(false);
+      processFiles();
     }
   }, [newFiles]); // Removido dependências desnecessárias
 
