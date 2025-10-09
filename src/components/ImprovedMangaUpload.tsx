@@ -36,9 +36,9 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
     removeFile,
     retryUpload
   } = useFileUpload({
-    maxFiles: 20,
+    maxFiles: 100, // Aumentado para permitir mais páginas
     maxSizePerFile: 10,
-    maxTotalSize: 100,
+    maxTotalSize: 500, // Aumentado proporcionalmente
     acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
     timeout: 120000
   });
@@ -370,7 +370,7 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
                 {isUploading ? 'Enviando...' : 'Selecionar Arquivos Iniciais'}
               </label>
               <span className="ml-2 text-gray-400 text-sm">
-                Máximo: 20 arquivos, 10MB por arquivo
+                Máximo: 10MB por arquivo
               </span>
             </div>
           )}

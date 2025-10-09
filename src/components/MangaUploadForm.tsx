@@ -174,7 +174,7 @@ export default function MangaUploadForm({ onSuccess, onError }: MangaUploadFormP
           <FileUploadProgress
             onUploadComplete={handleFileUploadComplete}
             onUploadError={handleFileUploadError}
-            maxFiles={20}
+            maxFiles={100} // Aumentado para permitir mais páginas
             maxSizePerFile={10}
             acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
           />

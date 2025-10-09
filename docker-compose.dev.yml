@@ -1,24 +1,21 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:15
-    container_name: xaodrescan_postgres_dev
+    container_name: xaodrescan_db_dev
     environment:
-      POSTGRES_DB: xaodrescan
+      POSTGRES_DB: xaodrescan_db_dev
       POSTGRES_USER: xaodrescan_user
       POSTGRES_PASSWORD: xaodrescan_password
     ports:
       - "5432:5432"
     volumes:
-      # volume fixo no host → evita perder dados mesmo entre rebuilds
-      - ./postgres_data_dev:/var/lib/postgresql/data
+      - xaodrescan_pgdata_dev:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U xaodrescan_user -d xaodrescan"]
+      test: ["CMD-SHELL", "pg_isready -U xaodrescan_user -d xaodrescan_db_dev"]
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
+    restart: "no"
 
   frontend:
     build:
@@ -28,16 +25,14 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # 🔹 Monta o código fonte, mas mantém o cache interno do Next.js
       - .:/app
       - /app/node_modules
       - /app/.next
       - ./uploads:/app/uploads
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan
+      DATABASE_URL: postgresql://xaodrescan_user:xaodrescan_password@postgres:5432/xaodrescan_db_dev
       JWT_SECRET: supersegredo_dev
-      # Otimizações de performance
       CHOKIDAR_USEPOLLING: "false"
       WATCHPACK_POLLING: "false"
       NEXT_TELEMETRY_DISABLED: "1"
@@ -51,7 +46,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
+    restart: "no"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
       interval: 10s
@@ -59,6 +54,5 @@ services:
       retries: 3
 
 volumes:
-  # nome explícito e caminho persistente evita recriação automática
-  pgdata_dev:
+  xaodrescan_pgdata_dev:
     name: xaodrescan_pgdata_dev

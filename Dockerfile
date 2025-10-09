@@ -41,6 +41,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
+# Copiar script de inicialização
+COPY scripts/docker-init.sh /app/scripts/docker-init.sh
+RUN chmod +x /app/scripts/docker-init.sh
+
 # Criar usuário não-root
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -49,11 +53,14 @@ RUN adduser --system --uid 1001 nextjs
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
 RUN chown -R nextjs:nodejs /app
 
+# Garantir que o diretório uploads tenha permissões corretas
+RUN chmod -R 755 /app/uploads
+
 USER nextjs
 
 EXPOSE 3000
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# 👇 Aqui fica o comando final que garante migrações + start
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+# 👇 Usar script de inicialização que configura permissões
+CMD ["/app/scripts/docker-init.sh"]

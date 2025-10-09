@@ -19,13 +19,33 @@ async function salvarImagem(base64Data: string, nomeArquivo: string, subpasta: s
     const base64 = base64Data.split(',')[1];
     const buffer = Buffer.from(base64, 'base64');
     
-    // Criar diretório se não existir
+    // Criar diretório se não existir com permissões adequadas
     const uploadsDir = path.join(process.cwd(), 'uploads', subpasta);
-    await mkdir(uploadsDir, { recursive: true });
     
-    // Salvar arquivo
+    try {
+      await mkdir(uploadsDir, { 
+        recursive: true,
+        mode: 0o755 // Permissões de leitura/escrita/execução para owner e grupo
+      });
+    } catch (mkdirError) {
+      console.warn('Erro ao criar diretório com permissões 755, tentando 777:', mkdirError);
+      // Tentar com permissões mais permissivas
+      await mkdir(uploadsDir, { 
+        recursive: true,
+        mode: 0o777 // Permissões mais permissivas
+      });
+    }
+    
+    // Salvar arquivo com permissões adequadas
     const caminhoArquivo = path.join(uploadsDir, nomeArquivo);
-    await writeFile(caminhoArquivo, buffer);
+    
+    try {
+      await writeFile(caminhoArquivo, buffer, { mode: 0o644 }); // Permissões de leitura/escrita para owner, leitura para outros
+    } catch (writeError) {
+      console.warn('Erro ao salvar com permissões 644, tentando 666:', writeError);
+      // Tentar com permissões mais permissivas
+      await writeFile(caminhoArquivo, buffer, { mode: 0o666 }); // Permissões mais permissivas
+    }
     
     // Retornar URL relativa com /uploads/
     const url = `/uploads/${subpasta}${subpasta ? '/' : ''}${nomeArquivo}`;
@@ -54,14 +74,12 @@ export async function POST(
     const mangaId = parseInt(id);
     const capId = parseInt(capituloId);
     const body = await request.json();
-    const { paginas, editado_por, editado_em } = body;
+    const { paginas } = body;
     
     console.log('📥 API - Dados recebidos:', {
       mangaId,
       capituloId: capId,
-      paginasCount: paginas?.length,
-      editado_por,
-      editado_em
+      paginasCount: paginas?.length
     });
 
     if (isNaN(mangaId) || isNaN(capId)) {
@@ -138,9 +156,9 @@ export async function POST(
         
         // Debug log removido por segurança
         await client.query(`
-          INSERT INTO paginas (capitulo_id, numero, imagem, legenda, editado_por, updated_at)
-          VALUES ($1, $2, $3, $4, $5, $6)
-        `, [capId, numeroPagina, urlPagina, pagina.legenda || `Página ${numeroPagina}`, editado_por, editado_em]);
+          INSERT INTO paginas (capitulo_id, numero, imagem, legenda)
+          VALUES ($1, $2, $3, $4)
+        `, [capId, numeroPagina, urlPagina, pagina.legenda || `Página ${numeroPagina}`]);
       }
 
       console.log('✅ API - Commitando transação');

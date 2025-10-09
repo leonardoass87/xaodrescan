@@ -4,7 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useNotificationContext } from '@/contexts/NotificationContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import PageManager from '@/components/PageManager';
+import EnhancedPageManager from '@/components/EnhancedPageManager';
 
 interface Pagina {
   id: number;
@@ -55,6 +57,7 @@ export default function EditarMangaPage() {
   const router = useRouter();
   const { success, error, warning, info } = useNotificationContext();
   const { user, isAdmin, isLoading } = useAuth();
+  const { authenticatedFetch } = useAuthenticatedFetch();
   
   const [manga, setManga] = useState<Manga | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -294,7 +297,7 @@ export default function EditarMangaPage() {
     }
 
     try {
-      const response = await fetch(`/api/mangas/${manga.id}/capitulo/${capituloId}`, {
+      const response = await authenticatedFetch(`/api/mangas/${manga.id}/capitulo/${capituloId}`, {
         method: 'DELETE',
       });
 
@@ -970,35 +973,40 @@ export default function EditarMangaPage() {
       {/* Modal de Novo Capítulo */}
       {modalNovoCapitulo && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-          <div className="bg-gradient-to-br from-black/90 to-red-900/20 border border-red-500/30 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">Adicionar Novo Capítulo</h2>
+          <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-gray-600/30 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-2">📖 Adicionar Novo Capítulo</h2>
+                  <p className="text-gray-400">Crie um novo capítulo para o mangá</p>
+                </div>
                 <button 
                   onClick={handleFecharModalNovoCapitulo}
-                  className="text-gray-400 hover:text-white text-2xl transition-colors"
+                  className="text-gray-400 hover:text-white text-3xl transition-colors p-2 hover:bg-gray-700/50 rounded-full"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {/* Informações do Capítulo */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-800/50 border border-gray-600/30 rounded-xl p-6">
+                  <h3 className="text-xl font-semibold text-white mb-6">📝 Informações do Capítulo</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-white font-medium mb-2">Número do Capítulo</label>
+                      <label className="block text-white font-medium mb-3">Número do Capítulo</label>
                     <input
                       type="number"
                       value={novoCapitulo.numero}
                       onChange={(e) => setNovoCapitulo(prev => ({ ...prev, numero: parseInt(e.target.value) || 1 }))}
-                      className="w-full bg-black/50 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors"
+                        className="w-full bg-gray-700/50 border border-gray-500/30 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors"
                       placeholder="1"
                       min="1"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-white font-medium mb-2">Título do Capítulo *</label>
+                      <label className="block text-white font-medium mb-3">Título do Capítulo *</label>
                     <input
                       type="text"
                       value={novoCapitulo.titulo}
@@ -1006,22 +1014,23 @@ export default function EditarMangaPage() {
                         console.log('🔍 Debug - Título alterado:', e.target.value);
                         setNovoCapitulo(prev => ({ ...prev, titulo: e.target.value }));
                       }}
-                      className="w-full bg-black/50 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors"
+                        className="w-full bg-gray-700/50 border border-gray-500/30 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors"
                       placeholder="Ex: O início da jornada"
                       required
                     />
                     {!novoCapitulo.titulo && (
-                      <p className="text-red-400 text-sm mt-1">⚠️ Título é obrigatório</p>
+                        <p className="text-red-400 text-sm mt-2">⚠️ Título é obrigatório</p>
                     )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Upload de Páginas */}
-                <div>
-                  <label className="block text-white font-medium mb-2">Páginas do Capítulo *</label>
+                <div className="bg-gray-800/50 border border-gray-600/30 rounded-xl p-6">
+                  <h3 className="text-xl font-semibold text-white mb-6">📄 Páginas do Capítulo</h3>
                   
-                  {/* Área de upload */}
-                  <div className="border-2 border-dashed border-red-500/30 rounded-lg p-6 text-center hover:border-red-500/50 transition-colors bg-black/20 mb-4">
+                  {/* Área de upload moderna */}
+                  <div className="border-2 border-dashed border-blue-500/30 rounded-xl p-8 text-center hover:border-blue-500/50 transition-all duration-300 bg-blue-500/5 hover:bg-blue-500/10 mb-6">
                     <input
                       type="file"
                       accept="image/*"
@@ -1030,53 +1039,67 @@ export default function EditarMangaPage() {
                       className="hidden"
                       id="novo-capitulo-paginas-upload"
                     />
-                    <label htmlFor="novo-capitulo-paginas-upload" className="cursor-pointer">
-                      <div className="space-y-2">
-                        <div className="text-4xl text-red-500">📄</div>
-                        <p className="text-white">
+                    <label htmlFor="novo-capitulo-paginas-upload" className="cursor-pointer block">
+                      <div className="space-y-4">
+                        <div className="text-6xl text-blue-500">📄</div>
+                        <div>
+                          <p className="text-white text-lg font-medium">
                           {novoCapitulo.paginas.length > 0 
                             ? 'Adicionar mais páginas' 
                             : 'Clique para selecionar as páginas'
                           }
                         </p>
-                        <p className="text-gray-400 text-sm">PNG, JPG, JPEG (máx. 10MB cada)</p>
-                        <p className="text-gray-400 text-xs">Você pode selecionar múltiplas imagens</p>
+                          <p className="text-gray-400 text-sm mt-2">PNG, JPG, JPEG, WEBP (máx. 10MB cada)</p>
+                          <p className="text-gray-500 text-xs mt-1">Você pode selecionar múltiplas imagens</p>
+                        </div>
                       </div>
                     </label>
                   </div>
 
-                  {/* Gerenciador de Páginas */}
+                  {/* Gerenciador de Páginas Moderno */}
                   {novoCapitulo.paginas.length > 0 && (
-                    <PageManager
+                    <EnhancedPageManager
                       paginas={novoCapitulo.paginas}
                       onPaginasChange={handlePaginasNovoCapituloUpdate}
                       onRemove={handleRemovePaginaNovoCapitulo}
                       onUpdateLegenda={handleUpdateLegendaNovoCapitulo}
+                      onAddMore={(newPaginas) => {
+                        setNovoCapitulo(prev => ({
+                          ...prev,
+                          paginas: [...prev.paginas, ...newPaginas]
+                        }));
+                      }}
                     />
                   )}
                 </div>
 
                 {/* Status dos campos obrigatórios */}
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-                  <h4 className="text-blue-300 font-bold mb-2 text-sm">📋 Status dos Campos:</h4>
-                  <div className="text-blue-200 text-xs space-y-1">
-                    <div className={`flex items-center gap-2 ${novoCapitulo.titulo ? 'text-green-400' : 'text-red-400'}`}>
-                      <span>{novoCapitulo.titulo ? '✅' : '❌'}</span>
-                      <span>Título: {novoCapitulo.titulo || 'Não preenchido'}</span>
+                <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-6">
+                  <h4 className="text-green-300 font-bold mb-4 text-lg">📋 Status dos Campos</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className={`flex items-center gap-3 p-3 rounded-lg ${novoCapitulo.titulo ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                      <span className="text-2xl">{novoCapitulo.titulo ? '✅' : '❌'}</span>
+                      <div>
+                        <p className="font-medium">Título do Capítulo</p>
+                        <p className="text-sm opacity-80">{novoCapitulo.titulo || 'Não preenchido'}</p>
                     </div>
-                    <div className={`flex items-center gap-2 ${novoCapitulo.paginas.length > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      <span>{novoCapitulo.paginas.length > 0 ? '✅' : '❌'}</span>
-                      <span>Páginas: {novoCapitulo.paginas.length} página(s)</span>
+                    </div>
+                    <div className={`flex items-center gap-3 p-3 rounded-lg ${novoCapitulo.paginas.length > 0 ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                      <span className="text-2xl">{novoCapitulo.paginas.length > 0 ? '✅' : '❌'}</span>
+                      <div>
+                        <p className="font-medium">Páginas</p>
+                        <p className="text-sm opacity-80">{novoCapitulo.paginas.length} página(s) selecionada(s)</p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Botões */}
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-4 pt-6">
                   <button
                     type="button"
                     onClick={handleFecharModalNovoCapitulo}
-                    className="flex-1 bg-gray-600/80 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                    className="flex-1 bg-gray-600/80 hover:bg-gray-600 text-white px-8 py-4 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
                     Cancelar
                   </button>
@@ -1084,19 +1107,22 @@ export default function EditarMangaPage() {
                     type="button"
                     onClick={handleSalvarNovoCapitulo}
                     disabled={salvandoCapitulo || !novoCapitulo.titulo || novoCapitulo.paginas.length === 0}
-                    className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg flex items-center justify-center ${
+                    className={`flex-1 px-8 py-4 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center ${
                       salvandoCapitulo || !novoCapitulo.titulo || novoCapitulo.paginas.length === 0
                         ? 'bg-gray-500 cursor-not-allowed' 
-                        : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                        : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:scale-105'
                     } text-white`}
                   >
                     {salvandoCapitulo ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                         Salvando...
                       </>
                     ) : (
-                      'Adicionar Capítulo'
+                      <>
+                        <span className="mr-2">📖</span>
+                        Adicionar Capítulo
+                      </>
                     )}
                   </button>
                 </div>
@@ -1109,40 +1135,50 @@ export default function EditarMangaPage() {
       {/* Modal de Adicionar Páginas */}
       {modalAdicionarPaginas && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-          <div className="bg-gradient-to-br from-black/90 to-blue-900/20 border border-blue-500/30 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">
-                  ➕ Adicionar Páginas ao Capítulo {capituloAtual?.numero}
-                </h2>
+          <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-gray-600/30 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-2">➕ Adicionar Páginas</h2>
+                  <p className="text-gray-400">Adicione páginas ao Capítulo {capituloAtual?.numero}</p>
+                </div>
                 <button 
                   onClick={handleFecharModalAdicionarPaginas}
-                  className="text-gray-400 hover:text-white text-2xl transition-colors"
+                  className="text-gray-400 hover:text-white text-3xl transition-colors p-2 hover:bg-gray-700/50 rounded-full"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {/* Informações do Capítulo */}
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                  <h4 className="text-blue-300 font-bold mb-2">📖 Capítulo Selecionado:</h4>
-                  <div className="text-blue-200 text-sm">
-                    <p><strong>Número:</strong> {capituloAtual?.numero}</p>
-                    <p><strong>Título:</strong> {capituloAtual?.titulo}</p>
-                    <p><strong>Páginas atuais:</strong> {paginasOrdenadas.length}</p>
-                    <p className="text-blue-300 text-xs mt-2">
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6">
+                  <h3 className="text-xl font-semibold text-blue-300 mb-4">📖 Capítulo Selecionado</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-blue-500/20 rounded-lg p-4">
+                      <p className="text-blue-200 text-sm font-medium">Número</p>
+                      <p className="text-white text-lg font-bold">{capituloAtual?.numero}</p>
+                    </div>
+                    <div className="bg-blue-500/20 rounded-lg p-4">
+                      <p className="text-blue-200 text-sm font-medium">Título</p>
+                      <p className="text-white text-lg font-bold truncate">{capituloAtual?.titulo}</p>
+                    </div>
+                    <div className="bg-blue-500/20 rounded-lg p-4">
+                      <p className="text-blue-200 text-sm font-medium">Páginas Atuais</p>
+                      <p className="text-white text-lg font-bold">{paginasOrdenadas.length}</p>
+                    </div>
+                  </div>
+                  <p className="text-blue-300 text-sm mt-4">
                       💡 As novas páginas serão adicionadas ao final do capítulo
                     </p>
-                  </div>
                 </div>
 
                 {/* Upload de Páginas */}
-                <div>
-                  <label className="block text-white font-medium mb-2">Páginas para Adicionar *</label>
+                <div className="bg-gray-800/50 border border-gray-600/30 rounded-xl p-6">
+                  <h3 className="text-xl font-semibold text-white mb-6">📄 Páginas para Adicionar</h3>
                   
-                  {/* Área de upload */}
-                  <div className="border-2 border-dashed border-blue-500/30 rounded-lg p-6 text-center hover:border-blue-500/50 transition-colors bg-black/20 mb-4">
+                  {/* Área de upload moderna */}
+                  <div className="border-2 border-dashed border-blue-500/30 rounded-xl p-8 text-center hover:border-blue-500/50 transition-all duration-300 bg-blue-500/5 hover:bg-blue-500/10 mb-6">
                     <input
                       type="file"
                       accept="image/*"
@@ -1151,52 +1187,59 @@ export default function EditarMangaPage() {
                       className="hidden"
                       id="adicionar-paginas-upload"
                     />
-                    <label htmlFor="adicionar-paginas-upload" className="cursor-pointer">
-                      <div className="space-y-2">
-                        <div className="text-4xl text-blue-500">📄</div>
-                        <p className="text-white">
+                    <label htmlFor="adicionar-paginas-upload" className="cursor-pointer block">
+                      <div className="space-y-4">
+                        <div className="text-6xl text-blue-500">📄</div>
+                        <div>
+                          <p className="text-white text-lg font-medium">
                           {paginasParaAdicionar.length > 0 
                             ? 'Adicionar mais páginas' 
                             : 'Clique para selecionar as páginas'
                           }
                         </p>
-                        <p className="text-gray-400 text-sm">PNG, JPG, JPEG (máx. 10MB cada)</p>
-                        <p className="text-gray-400 text-xs">Você pode selecionar múltiplas imagens</p>
+                          <p className="text-gray-400 text-sm mt-2">PNG, JPG, JPEG, WEBP (máx. 10MB cada)</p>
+                          <p className="text-gray-500 text-xs mt-1">Você pode selecionar múltiplas imagens</p>
+                        </div>
                       </div>
                     </label>
                   </div>
 
-                  {/* Gerenciador de Páginas */}
+                  {/* Gerenciador de Páginas Moderno */}
                   {paginasParaAdicionar.length > 0 && (
-                    <PageManager
+                    <EnhancedPageManager
                       paginas={paginasParaAdicionar}
                       onPaginasChange={handlePaginasAdicionarUpdate}
                       onRemove={handleRemovePaginaAdicionar}
                       onUpdateLegenda={handleUpdateLegendaAdicionar}
+                      onAddMore={(newPaginas) => {
+                        setPaginasParaAdicionar(prev => [...prev, ...newPaginas]);
+                      }}
                     />
                   )}
                 </div>
 
                 {/* Status dos campos */}
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
-                  <h4 className="text-green-300 font-bold mb-2 text-sm">📋 Status:</h4>
-                  <div className="text-green-200 text-xs space-y-1">
-                    <div className={`flex items-center gap-2 ${paginasParaAdicionar.length > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      <span>{paginasParaAdicionar.length > 0 ? '✅' : '❌'}</span>
-                      <span>Páginas: {paginasParaAdicionar.length} página(s) selecionada(s)</span>
-                    </div>
-                    <div className="text-green-300 text-xs">
-                      💡 As páginas serão numeradas automaticamente após as existentes
+                <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-6">
+                  <h4 className="text-green-300 font-bold mb-4 text-lg">📋 Status</h4>
+                  <div className="flex items-center gap-3 p-4 rounded-lg bg-green-500/20">
+                    <span className="text-3xl">{paginasParaAdicionar.length > 0 ? '✅' : '❌'}</span>
+                    <div>
+                      <p className="text-green-300 font-medium text-lg">
+                        {paginasParaAdicionar.length} página(s) selecionada(s)
+                      </p>
+                      <p className="text-green-200 text-sm">
+                        As páginas serão numeradas automaticamente após as existentes
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Botões */}
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-4 pt-6">
                   <button
                     type="button"
                     onClick={handleFecharModalAdicionarPaginas}
-                    className="flex-1 bg-gray-600/80 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                    className="flex-1 bg-gray-600/80 hover:bg-gray-600 text-white px-8 py-4 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
                     Cancelar
                   </button>
@@ -1204,19 +1247,22 @@ export default function EditarMangaPage() {
                     type="button"
                     onClick={handleSalvarPaginasAdicionar}
                     disabled={salvandoPaginas || paginasParaAdicionar.length === 0}
-                    className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg flex items-center justify-center ${
+                    className={`flex-1 px-8 py-4 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center ${
                       salvandoPaginas || paginasParaAdicionar.length === 0
                         ? 'bg-gray-500 cursor-not-allowed' 
-                        : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                        : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:scale-105'
                     } text-white`}
                   >
                     {salvandoPaginas ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                         Adicionando...
                       </>
                     ) : (
-                      `Adicionar ${paginasParaAdicionar.length} Página(s)`
+                      <>
+                        <span className="mr-2">📄</span>
+                        Adicionar {paginasParaAdicionar.length} Página(s)
+                      </>
                     )}
                   </button>
                 </div>

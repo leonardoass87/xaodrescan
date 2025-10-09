@@ -290,7 +290,15 @@ export default function LeitorPage() {
                       handleImageLoad(pagina.id);
                       console.error('Erro ao carregar imagem:', pagina.imagem);
                       console.error('URL tentada:', e.currentTarget.src);
+                      
+                      // Tentar URL alternativa para capítulos antigos
+                      const alternativeUrl = pagina.imagem.replace('/uploads/', '/api/uploads/');
+                      if (alternativeUrl !== e.currentTarget.src) {
+                        console.log('🔄 Tentando URL alternativa:', alternativeUrl);
+                        e.currentTarget.src = alternativeUrl;
+                      } else {
                       info('Erro de Imagem', 'Não foi possível carregar esta página');
+                      }
                     }}
                   />
                 </>
@@ -341,7 +349,15 @@ export default function LeitorPage() {
                       handleImageLoad(pagina.id);
                       console.error('Erro ao carregar imagem:', pagina.imagem);
                       console.error('URL tentada:', e.currentTarget.src);
+                      
+                      // Tentar URL alternativa para capítulos antigos
+                      const alternativeUrl = pagina.imagem.replace('/uploads/', '/api/uploads/');
+                      if (alternativeUrl !== e.currentTarget.src) {
+                        console.log('🔄 Tentando URL alternativa:', alternativeUrl);
+                        e.currentTarget.src = alternativeUrl;
+                      } else {
                       info('Erro de Imagem', `Não foi possível carregar a página ${pagina.numero}`);
+                      }
                     }}
                   />
                 </div>

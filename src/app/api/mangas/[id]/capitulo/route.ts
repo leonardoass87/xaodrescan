@@ -19,13 +19,56 @@ async function salvarImagem(base64Data: string, nomeArquivo: string, subpasta: s
     const base64 = base64Data.split(',')[1];
     const buffer = Buffer.from(base64, 'base64');
     
-    // Criar diretório se não existir
+    // Criar diretório se não existir com permissões adequadas
     const uploadsDir = path.join(process.cwd(), 'uploads', subpasta);
-    await mkdir(uploadsDir, { recursive: true });
+    console.log('🔍 Debug - Tentando criar diretório:', uploadsDir);
     
-    // Salvar arquivo
+    // Garantir que todos os diretórios pais existem
+    const uploadsBaseDir = path.join(process.cwd(), 'uploads');
+    const capitulosDir = path.join(process.cwd(), 'uploads', 'capitulos');
+    
+    // Criar diretórios em sequência para garantir que existam
+    const dirsToCreate = [uploadsBaseDir, capitulosDir, uploadsDir];
+    
+    for (const dir of dirsToCreate) {
+      try {
+        await mkdir(dir, { recursive: true, mode: 0o777 });
+        console.log('✅ Debug - Diretório criado/verificado:', dir);
+      } catch (error) {
+        console.warn('⚠️ Debug - Erro ao criar diretório:', dir, error);
+        // Continuar mesmo se falhar, o mkdir final pode funcionar
+      }
+    }
+    
+    try {
+      await mkdir(uploadsDir, { 
+        recursive: true,
+        mode: 0o755 // Permissões de leitura/escrita/execução para owner e grupo
+      });
+      console.log('✅ Debug - Diretório criado com sucesso (755):', uploadsDir);
+    } catch (mkdirError) {
+      console.warn('❌ Debug - Erro ao criar diretório com permissões 755, tentando 777:', mkdirError);
+      // Tentar com permissões mais permissivas
+      await mkdir(uploadsDir, { 
+        recursive: true,
+        mode: 0o777 // Permissões mais permissivas
+      });
+      console.log('✅ Debug - Diretório criado com sucesso (777):', uploadsDir);
+    }
+    
+    // Salvar arquivo com permissões adequadas
     const caminhoArquivo = path.join(uploadsDir, nomeArquivo);
-    await writeFile(caminhoArquivo, buffer);
+    console.log('🔍 Debug - Tentando salvar arquivo:', caminhoArquivo);
+    
+    try {
+      await writeFile(caminhoArquivo, buffer, { mode: 0o644 }); // Permissões de leitura/escrita para owner, leitura para outros
+      console.log('✅ Debug - Arquivo salvo com sucesso (644):', caminhoArquivo);
+    } catch (writeError) {
+      console.warn('❌ Debug - Erro ao salvar com permissões 644, tentando 666:', writeError);
+      // Tentar com permissões mais permissivas
+      await writeFile(caminhoArquivo, buffer, { mode: 0o666 }); // Permissões mais permissivas
+      console.log('✅ Debug - Arquivo salvo com sucesso (666):', caminhoArquivo);
+    }
     
     // Retornar URL relativa com /uploads/
     const url = `/uploads/${subpasta}${subpasta ? '/' : ''}${nomeArquivo}`;

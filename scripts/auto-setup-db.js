@@ -10,7 +10,7 @@ class DatabaseManager {
   }
 
   async connect() {
-    const connectionString = process.env.DATABASE_URL || 'postgresql://xaodrescan_user:xaodrescan_password@localhost:5432/xaodrescan';
+    const connectionString = process.env.DATABASE_URL || 'postgresql://xaodrescan_user:xaodrescan_password@localhost:5432/xaodrescan_db_dev';
     
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {

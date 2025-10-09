@@ -40,9 +40,9 @@ export default function EnhancedPageManager({
     uploadFiles,
     clearFiles
   } = useFileUpload({
-    maxFiles: 20,
+    maxFiles: 100, // Aumentado para permitir mais páginas
     maxSizePerFile: 10,
-    maxTotalSize: 100,
+    maxTotalSize: 500, // Aumentado proporcionalmente
     acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
     timeout: 120000
   });

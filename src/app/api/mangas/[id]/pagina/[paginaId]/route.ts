@@ -23,7 +23,7 @@ export async function DELETE(
     const { id, paginaId } = await params;
     const mangaId = parseInt(id);
     const pagId = parseInt(paginaId);
-    const { editado_por, editado_em } = await request.json();
+    await request.json();
 
     if (isNaN(mangaId) || isNaN(pagId)) {
       return NextResponse.json({ error: 'IDs inválidos' }, { status: 400 });
@@ -77,18 +77,18 @@ export async function DELETE(
       for (let i = 0; i < paginasRestantes.rows.length; i++) {
         await client.query(
           `UPDATE paginas 
-           SET numero = $1, updated_at = $2, editado_por = $3
+           SET numero = $1, updated_at = $2
            WHERE id = $4`,
-          [i + 1, editado_em, editado_por, paginasRestantes.rows[i].id]
+          [i + 1, new Date(), paginasRestantes.rows[i].id]
         );
       }
 
       // Atualizar timestamp do capítulo
       await client.query(
         `UPDATE capitulos 
-         SET updated_at = $1, editado_por = $2
+         SET updated_at = $1
          WHERE id = $3`,
-        [editado_em, editado_por, pagina.capitulo_id]
+        [new Date(), pagina.capitulo_id]
       );
 
       await client.query('COMMIT');
