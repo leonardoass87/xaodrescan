@@ -1,28 +1,20 @@
 import { NextResponse } from "next/server";
-import { Pool } from "pg";
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
 
 export async function GET() {
   try {
-    const client = await pool.connect();
+    // Dados mockados temporariamente para testar
+    const usuarios = [
+      {
+        id: 1,
+        nome: "leonardo",
+        email: "leoalvesjf@gmail.com",
+        role: "ADMIN",
+        created_at: "2025-10-08T19:08:08.857Z",
+        dataCriacao: "2025-10-08T19:08:08.857Z"
+      }
+    ];
 
-    const result = await client.query(`
-      SELECT id, nome, email, role, created_at
-      FROM usuarios
-      ORDER BY id ASC
-    `);
-
-    client.release();
-
-    return NextResponse.json(
-      result.rows.map((u) => ({
-        ...u,
-        dataCriacao: u.created_at, // ajusta campo snake_case → camelCase
-      }))
-    );
+    return NextResponse.json(usuarios);
   } catch (error) {
     console.error("Erro ao buscar usuários:", error);
     return NextResponse.json({ error: "Erro ao buscar usuários" }, { status: 500 });

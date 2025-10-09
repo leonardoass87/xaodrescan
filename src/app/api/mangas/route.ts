@@ -77,9 +77,157 @@ async function salvarImagem(imageData: string | File, nomeArquivo: string, subpa
   }
 }
 
-// GET - Listar todos os mangás
-export async function GET() {
+// GET - Listar todos os mangás ou buscar estatísticas
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const stats = searchParams.get('stats');
+    
+    if (stats === 'true') {
+      // Retornar estatísticas do dashboard
+      const client = await pool.connect();
+      
+      const [
+        usuariosResult,
+        mangasResult,
+        capitulosResult,
+        visualizacoesResult,
+        usuariosRecentesResult,
+        mangasRecentesResult,
+        capitulosRecentesResult,
+        // Dados do período anterior para cálculo de crescimento
+        usuariosAnterioresResult,
+        mangasAnterioresResult,
+        capitulosAnterioresResult,
+        visualizacoesAnterioresResult
+      ] = await Promise.all([
+        // Total de usuários
+        client.query('SELECT COUNT(*) as total FROM usuarios'),
+        
+        // Total de mangás
+        client.query('SELECT COUNT(*) as total FROM mangas'),
+        
+        // Total de capítulos
+        client.query('SELECT COUNT(*) as total FROM capitulos'),
+        
+        // Total de visualizações
+        client.query('SELECT SUM(visualizacoes) as total FROM mangas'),
+        
+        // Usuários recentes (últimos 7 dias)
+        client.query(`
+          SELECT nome, email, created_at 
+          FROM usuarios 
+          WHERE created_at >= NOW() - INTERVAL '7 days'
+          ORDER BY created_at DESC 
+          LIMIT 5
+        `),
+        
+        // Mangás recentes (últimos 7 dias)
+        client.query(`
+          SELECT titulo, data_adicao, autor
+          FROM mangas 
+          WHERE data_adicao >= NOW() - INTERVAL '7 days'
+          ORDER BY data_adicao DESC 
+          LIMIT 5
+        `),
+        
+        // Capítulos recentes (últimos 7 dias)
+        client.query(`
+          SELECT c.numero, c.titulo, c.data_publicacao, m.titulo as manga_titulo
+          FROM capitulos c
+          JOIN mangas m ON c.manga_id = m.id
+          WHERE c.data_publicacao >= NOW() - INTERVAL '7 days'
+          ORDER BY c.data_publicacao DESC 
+          LIMIT 5
+        `),
+        
+        // Novos registros do período anterior (7-14 dias atrás) para comparação
+        client.query(`
+          SELECT COUNT(*) as total 
+          FROM usuarios 
+          WHERE created_at >= NOW() - INTERVAL '14 days' 
+          AND created_at < NOW() - INTERVAL '7 days'
+        `),
+        
+        client.query(`
+          SELECT COUNT(*) as total 
+          FROM mangas 
+          WHERE data_adicao >= NOW() - INTERVAL '14 days' 
+          AND data_adicao < NOW() - INTERVAL '7 days'
+        `),
+        
+        client.query(`
+          SELECT COUNT(*) as total 
+          FROM capitulos 
+          WHERE data_publicacao >= NOW() - INTERVAL '14 days' 
+          AND data_publicacao < NOW() - INTERVAL '7 days'
+        `),
+        
+        client.query(`
+          SELECT COUNT(*) as total 
+          FROM mangas 
+          WHERE updated_at >= NOW() - INTERVAL '14 days' 
+          AND updated_at < NOW() - INTERVAL '7 days'
+        `)
+      ]);
+      
+      client.release();
+      
+      // Função para calcular porcentagem de crescimento baseada em novos registros
+      const calcularCrescimento = (novosAtual: number, novosAnterior: number): number => {
+        if (novosAnterior === 0) {
+          return novosAtual > 0 ? 100 : 0; // Se não havia novos registros antes, crescimento é 100% ou 0%
+        }
+        return Math.round(((novosAtual - novosAnterior) / novosAnterior) * 100);
+      };
+      
+      // Extrair totais atuais (para exibição)
+      const usuariosTotal = parseInt(usuariosResult.rows[0].total);
+      const mangasTotal = parseInt(mangasResult.rows[0].total);
+      const capitulosTotal = parseInt(capitulosResult.rows[0].total);
+      const visualizacoesTotal = parseInt(visualizacoesResult.rows[0].total) || 0;
+      
+      // Extrair novos registros dos últimos 7 dias (para cálculo de crescimento)
+      const usuariosNovos = usuariosRecentesResult.rows.length;
+      const mangasNovos = mangasRecentesResult.rows.length;
+      const capitulosNovos = capitulosRecentesResult.rows.length;
+      
+      // Extrair novos registros do período anterior (7-14 dias atrás)
+      const usuariosNovosAnterior = parseInt(usuariosAnterioresResult.rows[0].total) || 0;
+      const mangasNovosAnterior = parseInt(mangasAnterioresResult.rows[0].total) || 0;
+      const capitulosNovosAnterior = parseInt(capitulosAnterioresResult.rows[0].total) || 0;
+      const visualizacoesNovosAnterior = parseInt(visualizacoesAnterioresResult.rows[0].total) || 0;
+      
+      // Calcular percentuais reais baseados em novos registros
+      // Exemplo: Se esta semana teve 3 novos usuários e semana passada teve 1 = +200%
+      const statsData = {
+        usuarios: {
+          total: usuariosTotal, // Total geral de usuários
+          crescimento: calcularCrescimento(usuariosNovos, usuariosNovosAnterior) // Crescimento baseado em novos registros
+        },
+        mangas: {
+          total: mangasTotal,
+          crescimento: calcularCrescimento(mangasNovos, mangasNovosAnterior)
+        },
+        capitulos: {
+          total: capitulosTotal,
+          crescimento: calcularCrescimento(capitulosNovos, capitulosNovosAnterior)
+        },
+        visualizacoes: {
+          total: visualizacoesTotal,
+          crescimento: calcularCrescimento(visualizacoesTotal, visualizacoesNovosAnterior)
+        },
+        atividades: {
+          usuariosRecentes: usuariosRecentesResult.rows,
+          mangasRecentes: mangasRecentesResult.rows,
+          capitulosRecentes: capitulosRecentesResult.rows
+        }
+      };
+      
+      return NextResponse.json(statsData);
+    }
+    
+    // Comportamento padrão - listar mangás
     const client = await pool.connect();
     
     const result = await client.query(`
@@ -96,7 +244,7 @@ export async function GET() {
     
     return NextResponse.json(result.rows);
   } catch (error) {
-    console.error('Erro ao buscar mangás:', error);
+    console.error('Erro ao buscar dados:', error);
     return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
   }
 }

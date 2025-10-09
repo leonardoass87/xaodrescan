@@ -6,9 +6,10 @@ interface Usuario {
   id: number;
   nome: string;
   email: string;
-  role: "admin" | "usuario";   // 👈 agora reflete o backend (coluna `role`)
-  status: "ativo" | "inativo";
+  role: "ADMIN" | "USUARIO" | "admin" | "usuario";   // Aceita ambos os formatos
+  status?: "ativo" | "inativo";
   dataCriacao: string;
+  email_confirmado?: boolean;
 }
 
 export default function UsuariosPage() {
@@ -19,9 +20,18 @@ export default function UsuariosPage() {
   useEffect(() => {
     async function fetchUsuarios() {
       try {
-        const res = await fetch("/api/usuarios"); // rota do backend
-        if (!res.ok) throw new Error("Erro ao buscar usuários");
-        const data = await res.json();
+        // Dados mockados temporariamente até a API funcionar
+        const data = [
+          {
+            id: 1,
+            nome: "leonardo",
+            email: "leoalvesjf@gmail.com",
+            role: "ADMIN",
+            created_at: "2025-10-08T19:08:08.857Z",
+            dataCriacao: "2025-10-08T19:08:08.857Z",
+            email_confirmado: true
+          }
+        ];
         setUsuarios(data);
       } catch (error) {
         console.error("Erro ao carregar usuários:", error);
@@ -118,22 +128,22 @@ export default function UsuariosPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400 text-xs">Tipo:</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    usuario.role === 'admin' 
+                    (usuario.role === 'ADMIN' || usuario.role === 'admin')
                       ? 'bg-red-500/20 text-red-300 border border-red-500/30' 
                       : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                   }`}>
-                    {usuario.role === 'admin' ? 'Admin' : 'Usuário'}
+                    {(usuario.role === 'ADMIN' || usuario.role === 'admin') ? 'Admin' : 'Usuário'}
                   </span>
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400 text-xs">Status:</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    usuario.status === 'ativo' 
+                    (usuario.status === 'ativo' || usuario.email_confirmado !== false)
                       ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
                       : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
                   }`}>
-                    {usuario.status === 'ativo' ? 'Ativo' : 'Inativo'}
+                    {(usuario.status === 'ativo' || usuario.email_confirmado !== false) ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
               </div>
@@ -163,20 +173,20 @@ export default function UsuariosPage() {
                   <td className="p-4 text-gray-300 text-sm truncate">{usuario.email}</td>
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      usuario.role === 'admin' 
+                      (usuario.role === 'ADMIN' || usuario.role === 'admin')
                         ? 'bg-red-500/20 text-red-300 border border-red-500/30' 
                         : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                     }`}>
-                      {usuario.role === 'admin' ? 'Admin' : 'Usuário'}
+                      {(usuario.role === 'ADMIN' || usuario.role === 'admin') ? 'Admin' : 'Usuário'}
                     </span>
                   </td>
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      usuario.status === 'ativo' 
+                      (usuario.status === 'ativo' || usuario.email_confirmado !== false)
                         ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
                         : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
                     }`}>
-                      {usuario.status === 'ativo' ? 'Ativo' : 'Inativo'}
+                      {(usuario.status === 'ativo' || usuario.email_confirmado !== false) ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
                   <td className="p-4 text-gray-300 text-sm">{new Date(usuario.dataCriacao).toLocaleDateString('pt-BR')}</td>
@@ -207,11 +217,21 @@ export default function UsuariosPage() {
           <div className="text-gray-400 text-sm">Total de Usuários</div>
         </div>
         <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-          <div className="text-2xl font-bold text-green-400">{usuarios.filter(u => u.status === 'ativo').length}</div>
+          <div className="text-2xl font-bold text-green-400">
+            {usuarios.filter(u => {
+              // Se tem status definido, usa ele; senão, assume ativo se email confirmado
+              if (u.status) {
+                return u.status === 'ativo';
+              }
+              return u.email_confirmado !== false; // Assume ativo se não especificado
+            }).length}
+          </div>
           <div className="text-gray-400 text-sm">Usuários Ativos</div>
         </div>
         <div className="bg-black/30 backdrop-blur-sm border border-red-500/20 rounded-xl p-6 text-center">
-          <div className="text-2xl font-bold text-red-400">{usuarios.filter(u => u.role === 'admin').length}</div>
+          <div className="text-2xl font-bold text-red-400">
+            {usuarios.filter(u => u.role === 'ADMIN' || u.role === 'admin').length}
+          </div>
           <div className="text-gray-400 text-sm">Administradores</div>
         </div>
       </div>

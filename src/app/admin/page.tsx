@@ -1,8 +1,28 @@
 "use client";
 
 import Link from "next/link";
+import { useAdminStats } from "@/hooks/useAdminStats";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function AdminDashboard() {
+  const { stats, loading, error } = useAdminStats();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900 flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900 flex items-center justify-center">
+        <div className="text-red-400 text-xl">Erro ao carregar dados: {error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Header */}
@@ -19,10 +39,14 @@ export default function AdminDashboard() {
               <div className="bg-red-500/20 p-2 rounded-xl">
                 <span className="text-red-400 text-lg">👥</span>
               </div>
-              <span className="text-green-400 text-xs font-medium">+12%</span>
+              <span className={`text-xs font-medium ${
+                (stats?.usuarios.crescimento || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+              }`}>
+                {(stats?.usuarios.crescimento || 0) >= 0 ? '+' : ''}{stats?.usuarios.crescimento || 0}%
+              </span>
             </div>
             <p className="text-gray-400 text-xs font-medium mb-1">Usuários</p>
-            <p className="text-lg md:text-xl font-bold text-white">1,234</p>
+            <p className="text-lg md:text-xl font-bold text-white">{stats?.usuarios.total.toLocaleString() || 0}</p>
           </div>
         </div>
 
@@ -32,10 +56,14 @@ export default function AdminDashboard() {
               <div className="bg-blue-500/20 p-2 rounded-xl">
                 <span className="text-blue-400 text-lg">📚</span>
               </div>
-              <span className="text-green-400 text-xs font-medium">+8%</span>
+              <span className={`text-xs font-medium ${
+                (stats?.mangas.crescimento || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+              }`}>
+                {(stats?.mangas.crescimento || 0) >= 0 ? '+' : ''}{stats?.mangas.crescimento || 0}%
+              </span>
             </div>
             <p className="text-gray-400 text-xs font-medium mb-1">Mangás</p>
-            <p className="text-lg md:text-xl font-bold text-white">567</p>
+            <p className="text-lg md:text-xl font-bold text-white">{stats?.mangas.total.toLocaleString() || 0}</p>
           </div>
         </div>
 
@@ -45,10 +73,14 @@ export default function AdminDashboard() {
               <div className="bg-green-500/20 p-2 rounded-xl">
                 <span className="text-green-400 text-lg">📖</span>
               </div>
-              <span className="text-green-400 text-xs font-medium">+15%</span>
+              <span className={`text-xs font-medium ${
+                (stats?.capitulos.crescimento || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+              }`}>
+                {(stats?.capitulos.crescimento || 0) >= 0 ? '+' : ''}{stats?.capitulos.crescimento || 0}%
+              </span>
             </div>
             <p className="text-gray-400 text-xs font-medium mb-1">Capítulos</p>
-            <p className="text-lg md:text-xl font-bold text-white">2,891</p>
+            <p className="text-lg md:text-xl font-bold text-white">{stats?.capitulos.total.toLocaleString() || 0}</p>
           </div>
         </div>
 
@@ -58,10 +90,21 @@ export default function AdminDashboard() {
               <div className="bg-purple-500/20 p-2 rounded-xl">
                 <span className="text-purple-400 text-lg">👁️</span>
               </div>
-              <span className="text-green-400 text-xs font-medium">+23%</span>
+              <span className={`text-xs font-medium ${
+                (stats?.visualizacoes.crescimento || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+              }`}>
+                {(stats?.visualizacoes.crescimento || 0) >= 0 ? '+' : ''}{stats?.visualizacoes.crescimento || 0}%
+              </span>
             </div>
             <p className="text-gray-400 text-xs font-medium mb-1">Visualizações</p>
-            <p className="text-lg md:text-xl font-bold text-white">45.6K</p>
+            <p className="text-lg md:text-xl font-bold text-white">
+              {stats?.visualizacoes.total ? 
+                (stats.visualizacoes.total >= 1000 ? 
+                  `${(stats.visualizacoes.total / 1000).toFixed(1)}K` : 
+                  stats.visualizacoes.total.toLocaleString()
+                ) : 0
+              }
+            </p>
           </div>
         </div>
       </div>
@@ -97,35 +140,61 @@ export default function AdminDashboard() {
             Atividade Recente
           </h2>
           <div className="space-y-3">
-            <div className="flex items-center space-x-3 p-3 bg-red-500/5 rounded-lg border border-red-500/10">
-              <div className="bg-red-500/20 p-2 rounded-lg">
-                <span className="text-red-400 text-sm">📚</span>
+            {/* Mangás recentes */}
+            {stats?.atividades.mangasRecentes.map((manga, index) => (
+              <div key={`manga-${index}`} className="flex items-center space-x-3 p-3 bg-red-500/5 rounded-lg border border-red-500/10">
+                <div className="bg-red-500/20 p-2 rounded-lg">
+                  <span className="text-red-400 text-sm">📚</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-medium truncate">Novo mangá: "{manga.titulo}"</p>
+                  <p className="text-gray-400 text-xs">
+                    {new Date(manga.data_adicao).toLocaleDateString('pt-BR')} às {new Date(manga.data_adicao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium truncate">Novo mangá adicionado</p>
-                <p className="text-gray-400 text-xs">há 2 horas</p>
+            ))}
+
+            {/* Usuários recentes */}
+            {stats?.atividades.usuariosRecentes.map((usuario, index) => (
+              <div key={`usuario-${index}`} className="flex items-center space-x-3 p-3 bg-blue-500/5 rounded-lg border border-blue-500/10">
+                <div className="bg-blue-500/20 p-2 rounded-lg">
+                  <span className="text-blue-400 text-sm">👥</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-medium truncate">Usuário "{usuario.nome}" se registrou</p>
+                  <p className="text-gray-400 text-xs">
+                    {new Date(usuario.created_at).toLocaleDateString('pt-BR')} às {new Date(usuario.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
               </div>
-            </div>
-            
-            <div className="flex items-center space-x-3 p-3 bg-blue-500/5 rounded-lg border border-blue-500/10">
-              <div className="bg-blue-500/20 p-2 rounded-lg">
-                <span className="text-blue-400 text-sm">👥</span>
+            ))}
+
+            {/* Capítulos recentes */}
+            {stats?.atividades.capitulosRecentes.map((capitulo, index) => (
+              <div key={`capitulo-${index}`} className="flex items-center space-x-3 p-3 bg-green-500/5 rounded-lg border border-green-500/10">
+                <div className="bg-green-500/20 p-2 rounded-lg">
+                  <span className="text-green-400 text-sm">📖</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-medium truncate">
+                    Capítulo {capitulo.numero} de "{capitulo.manga_titulo}" publicado
+                  </p>
+                  <p className="text-gray-400 text-xs">
+                    {new Date(capitulo.data_publicacao).toLocaleDateString('pt-BR')} às {new Date(capitulo.data_publicacao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium truncate">Usuário "João Silva" se registrou</p>
-                <p className="text-gray-400 text-xs">há 4 horas</p>
+            ))}
+
+            {/* Se não há atividades recentes */}
+            {(!stats?.atividades.mangasRecentes.length && 
+              !stats?.atividades.usuariosRecentes.length && 
+              !stats?.atividades.capitulosRecentes.length) && (
+              <div className="text-center py-8">
+                <p className="text-gray-400 text-sm">Nenhuma atividade recente</p>
               </div>
-            </div>
-            
-            <div className="flex items-center space-x-3 p-3 bg-green-500/5 rounded-lg border border-green-500/10">
-              <div className="bg-green-500/20 p-2 rounded-lg">
-                <span className="text-green-400 text-sm">📖</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium truncate">Capítulo 156 de "Naruto" publicado</p>
-                <p className="text-gray-400 text-xs">há 6 horas</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
