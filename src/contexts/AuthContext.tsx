@@ -6,7 +6,7 @@ interface User {
   id: number;
   nome: string;
   email: string;
-  role: 'ADMIN' | 'USUARIO';
+  role: string;  // Aceita qualquer string para flexibilidade
   created_at: string;
 }
 

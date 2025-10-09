@@ -6,7 +6,7 @@ interface Usuario {
   id: number;
   nome: string;
   email: string;
-  role: "ADMIN" | "USUARIO" | "admin" | "usuario";   // Aceita ambos os formatos
+  role: string;  // Aceita qualquer string para flexibilidade
   status?: "ativo" | "inativo";
   dataCriacao: string;
   email_confirmado?: boolean;
