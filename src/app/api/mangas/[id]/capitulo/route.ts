@@ -15,8 +15,30 @@ const pool = new Pool({
 // Função para salvar imagem base64 em arquivo
 async function salvarImagem(base64Data: string, nomeArquivo: string, subpasta: string = '') {
   try {
+    // Validar se base64Data existe e não está vazio
+    if (!base64Data || typeof base64Data !== 'string') {
+      throw new Error('Dados base64 inválidos: dados não fornecidos ou não são string');
+    }
+
+    // Verificar se contém o prefixo data:image
+    if (!base64Data.includes('data:image')) {
+      throw new Error('Dados base64 inválidos: não contém prefixo data:image');
+    }
+
+    // Verificar se contém vírgula para separar o prefixo
+    if (!base64Data.includes(',')) {
+      throw new Error('Dados base64 inválidos: formato incorreto, não contém vírgula separadora');
+    }
+
     // Remover o prefixo data:image/...;base64,
     const base64 = base64Data.split(',')[1];
+    
+    // Validar se o base64 foi extraído corretamente
+    if (!base64 || base64.trim() === '') {
+      throw new Error('Dados base64 inválidos: não foi possível extrair os dados após a vírgula');
+    }
+
+    console.log('🔍 Debug - Base64 extraído com sucesso, tamanho:', base64.length);
     const buffer = Buffer.from(base64, 'base64');
     
     // Criar diretório se não existir com permissões adequadas
@@ -178,12 +200,25 @@ export async function POST(
       console.log('📄 API - Salvando páginas:', paginas.length);
       for (let i = 0; i < paginas.length; i++) {
         const pagina = paginas[i];
-        // Debug log removido por segurança
+        
+        // Validar se a página tem dados válidos
+        if (!pagina || !pagina.preview) {
+          console.error(`❌ API - Página ${i + 1} inválida:`, pagina);
+          throw new Error(`Página ${i + 1} não possui dados de preview válidos`);
+        }
+
+        // Validar se o preview é uma string válida
+        if (typeof pagina.preview !== 'string' || pagina.preview.trim() === '') {
+          console.error(`❌ API - Preview da página ${i + 1} inválido:`, typeof pagina.preview, pagina.preview?.length);
+          throw new Error(`Página ${i + 1} não possui preview válido`);
+        }
+        
+        console.log(`🔍 API - Processando página ${i + 1}, tamanho do preview:`, pagina.preview.length);
         
         const extensaoPagina = pagina.preview.includes('data:image/png') ? 'png' : 'jpg';
         const nomePagina = `pagina_${capituloId}_${i + 1}_${timestamp}.${extensaoPagina}`;
         
-        // Debug log removido por segurança
+        console.log(`🔍 API - Salvando página ${i + 1} como:`, nomePagina);
         const urlPagina = await salvarImagem(pagina.preview, nomePagina, `capitulos/${capituloId}`);
         
         // Debug log removido por segurança

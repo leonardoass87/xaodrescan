@@ -52,7 +52,7 @@ export async function PUT(
         await client.query(
           `UPDATE paginas 
            SET numero = $1, updated_at = $2
-           WHERE id = $4 AND capitulo_id = $5`,
+           WHERE id = $3 AND capitulo_id = $4`,
           [i + 1, new Date(), ordemPaginas[i], capId]
         );
       }

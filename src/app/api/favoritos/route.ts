@@ -25,8 +25,9 @@ export async function GET(request: NextRequest) {
         id: f.id,
         data_favorito: f.data_favorito,
         manga_id: f.manga.id,
-        manga_titulo: f.manga.titulo,
-        manga_capa: f.manga.capa,     
+        titulo: f.manga.titulo,
+        autor: f.manga.autor || 'Autor Desconhecido',
+        capa: f.manga.capa,     
         status: f.manga.status,
         visualizacoes: f.manga.visualizacoes,
         data_adicao: f.manga.data_adicao
