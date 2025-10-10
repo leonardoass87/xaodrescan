@@ -61,7 +61,7 @@ export async function PUT(
       await client.query(
         `UPDATE capitulos 
          SET updated_at = $1
-         WHERE id = $3`,
+         WHERE id = $2`,
         [new Date(), capId]
       );
 

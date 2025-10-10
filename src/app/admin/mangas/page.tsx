@@ -54,6 +54,7 @@ export default function MangasPage() {
     titulo: "",
     autor: "",
     generos: "",
+    description: "",
     status: "EM_ANDAMENTO" as "EM_ANDAMENTO" | "COMPLETO" | "pausado",
     capa: null as File | null
   });
@@ -345,6 +346,7 @@ export default function MangasPage() {
         titulo: formulario.titulo,
         autor: formulario.autor || null,
         generos: formulario.generos.split(',').map(g => g.trim()).filter(g => g),
+        description: formulario.description || null,
         status: formulario.status,
         capa: previewCapa,
         capitulo: {
@@ -382,6 +384,7 @@ export default function MangasPage() {
         titulo: "",
         autor: "",
         generos: "",
+        description: "",
         status: "EM_ANDAMENTO",
         capa: null
       });
@@ -409,6 +412,7 @@ export default function MangasPage() {
       titulo: "",
       autor: "",
       generos: "",
+      description: "",
       status: "EM_ANDAMENTO",
       capa: null
     });
@@ -789,6 +793,17 @@ export default function MangasPage() {
                     onChange={(e) => setFormulario(prev => ({ ...prev, generos: e.target.value }))}
                     className="w-full bg-black/50 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors"
                     placeholder="Ação, Aventura, Comédia (separados por vírgula)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white font-medium mb-2">Descrição</label>
+                  <textarea
+                    value={formulario.description}
+                    onChange={(e) => setFormulario(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full bg-black/50 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none transition-colors resize-none"
+                    placeholder="Descreva a história do mangá..."
+                    rows={4}
                   />
                 </div>
 

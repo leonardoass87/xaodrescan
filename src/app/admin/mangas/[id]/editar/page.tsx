@@ -42,6 +42,7 @@ interface Manga {
   titulo: string;
   autor: string;
   generos: string[];
+  description?: string;
   status: "EM_ANDAMENTO" | "COMPLETO" | "PAUSADO";
   capitulos: Capitulo[];
   visualizacoes: number;
@@ -62,6 +63,14 @@ export default function EditarMangaPage() {
   const [manga, setManga] = useState<Manga | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [editandoDados, setEditandoDados] = useState(false);
+  const [dadosEditando, setDadosEditando] = useState({
+    titulo: '',
+    autor: '',
+    generos: '',
+    description: '',
+    status: 'EM_ANDAMENTO' as 'EM_ANDAMENTO' | 'COMPLETO' | 'PAUSADO'
+  });
   const [capituloSelecionado, setCapituloSelecionado] = useState<number | null>(null);
   const [paginasEditando, setPaginasEditando] = useState<Pagina[]>([]);
   const [ordemPaginas, setOrdemPaginas] = useState<number[]>([]);
@@ -698,6 +707,61 @@ export default function EditarMangaPage() {
     return new Date(data).toLocaleString('pt-BR');
   };
 
+  // Função para abrir modal de edição de dados
+  const abrirEdicaoDados = () => {
+    if (manga) {
+      setDadosEditando({
+        titulo: manga.titulo,
+        autor: manga.autor || '',
+        generos: manga.generos?.join(', ') || '',
+        description: manga.description || '',
+        status: manga.status
+      });
+      setEditandoDados(true);
+    }
+  };
+
+  // Função para salvar dados editados
+  const salvarDadosEditados = async () => {
+    if (!manga) return;
+
+    setSalvando(true);
+    try {
+      const response = await authenticatedFetch(`/api/mangas/${manga.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          titulo: dadosEditando.titulo,
+          autor: dadosEditando.autor,
+          generos: dadosEditando.generos.split(',').map(g => g.trim()).filter(g => g),
+          description: dadosEditando.description,
+          status: dadosEditando.status
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao salvar dados');
+      }
+
+      // Recarregar dados do mangá
+      const mangaResponse = await fetch(`/api/mangas/${manga.id}`);
+      if (mangaResponse.ok) {
+        const dados = await mangaResponse.json();
+        setManga(dados);
+      }
+      setEditandoDados(false);
+      success('Dados Atualizados', 'As informações do mangá foram atualizadas com sucesso!');
+    } catch (err: any) {
+      console.error('Erro ao salvar dados:', err);
+      error('Erro ao Salvar', err.message || 'Falha ao salvar os dados do mangá.');
+    } finally {
+      setSalvando(false);
+    }
+  };
+
   // Mostrar loading enquanto verifica autenticação
   if (isLoading) {
     return (
@@ -788,6 +852,12 @@ export default function EditarMangaPage() {
             <p><strong>Status:</strong> {manga.status}</p>
             <p><strong>Visualizações:</strong> {manga.visualizacoes || 0}</p>
             <p><strong>Adicionado em:</strong> {formatarData(manga.data_adicao)}</p>
+            <button
+              onClick={abrirEdicaoDados}
+              className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors"
+            >
+              ✏️ Editar Dados
+            </button>
           </div>
           
           <div className="text-sm text-gray-300">
@@ -1266,6 +1336,111 @@ export default function EditarMangaPage() {
                     )}
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edição de Dados do Mangá */}
+      {editandoDados && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+          <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-gray-600/30 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-2">✏️ Editar Dados do Mangá</h2>
+                  <p className="text-gray-400">Atualize as informações básicas do mangá</p>
+                </div>
+                <button 
+                  onClick={() => setEditandoDados(false)}
+                  className="text-gray-400 hover:text-white text-3xl transition-colors p-2 hover:bg-gray-700/50 rounded-full"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-8">
+                <form onSubmit={(e) => { e.preventDefault(); salvarDadosEditados(); }} className="space-y-8">
+                  {/* Campos do Formulário */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-white font-bold mb-3 text-lg">Título *</label>
+                      <input
+                        type="text"
+                        value={dadosEditando.titulo}
+                        onChange={(e) => setDadosEditando(prev => ({ ...prev, titulo: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-600/30 rounded-xl px-4 py-4 text-white focus:border-blue-500 focus:outline-none transition-colors text-lg"
+                        placeholder="Digite o título do mangá"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-white font-bold mb-3 text-lg">Autor</label>
+                      <input
+                        type="text"
+                        value={dadosEditando.autor}
+                        onChange={(e) => setDadosEditando(prev => ({ ...prev, autor: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-600/30 rounded-xl px-4 py-4 text-white focus:border-blue-500 focus:outline-none transition-colors text-lg"
+                        placeholder="Nome do autor (opcional)"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-white font-bold mb-3 text-lg">Gêneros</label>
+                    <input
+                      type="text"
+                      value={dadosEditando.generos}
+                      onChange={(e) => setDadosEditando(prev => ({ ...prev, generos: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-600/30 rounded-xl px-4 py-4 text-white focus:border-blue-500 focus:outline-none transition-colors text-lg"
+                      placeholder="Ação, Aventura, Comédia (separados por vírgula)"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-white font-bold mb-3 text-lg">Descrição</label>
+                    <textarea
+                      value={dadosEditando.description}
+                      onChange={(e) => setDadosEditando(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-600/30 rounded-xl px-4 py-4 text-white focus:border-blue-500 focus:outline-none transition-colors resize-none text-lg"
+                      placeholder="Descreva a história do mangá..."
+                      rows={4}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-white font-bold mb-3 text-lg">Status</label>
+                    <select
+                      value={dadosEditando.status}
+                      onChange={(e) => setDadosEditando(prev => ({ ...prev, status: e.target.value as any }))}
+                      className="w-full bg-gray-800/50 border border-gray-600/30 rounded-xl px-4 py-4 text-white focus:border-blue-500 focus:outline-none transition-colors text-lg"
+                    >
+                      <option value="EM_ANDAMENTO">Em Andamento</option>
+                      <option value="COMPLETO">Completo</option>
+                      <option value="PAUSADO">Pausado</option>
+                    </select>
+                  </div>
+
+                  {/* Botões */}
+                  <div className="flex justify-end gap-4 pt-6">
+                    <button
+                      type="button"
+                      onClick={() => setEditandoDados(false)}
+                      className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-4 rounded-xl transition-colors font-bold text-lg"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={salvando}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl transition-colors disabled:opacity-50 font-bold text-lg"
+                    >
+                      {salvando ? 'Salvando...' : '💾 Salvar Alterações'}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>

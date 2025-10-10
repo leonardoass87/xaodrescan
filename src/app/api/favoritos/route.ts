@@ -11,8 +11,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'userId é obrigatório' }, { status: 400 });
     }
 
+    const userIdInt = parseInt(userId);
+    if (isNaN(userIdInt)) {
+      return NextResponse.json({ error: 'userId deve ser um número válido' }, { status: 400 });
+    }
+
     const favoritos = await prisma.favorito.findMany({
-      where: { usuario_id: parseInt(userId) },
+      where: { usuario_id: userIdInt },
       include: {
         manga: true
       },
@@ -55,11 +60,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validar IDs
+    const userIdInt = parseInt(userId);
+    const mangaIdInt = parseInt(mangaId);
+    
+    if (isNaN(userIdInt) || isNaN(mangaIdInt)) {
+      return NextResponse.json({ error: 'IDs devem ser números válidos' }, { status: 400 });
+    }
+
     // Verificar se o favorito já existe
     const existingFavorito = await prisma.favorito.findFirst({
       where: {
-        usuario_id: parseInt(userId),
-        manga_id: parseInt(mangaId)
+        usuario_id: userIdInt,
+        manga_id: mangaIdInt
       }
     });
 
@@ -74,8 +87,8 @@ export async function POST(request: NextRequest) {
     // Inserir novo favorito
     const favorito = await prisma.favorito.create({
       data: {
-        usuario_id: parseInt(userId),
-        manga_id: parseInt(mangaId)
+        usuario_id: userIdInt,
+        manga_id: mangaIdInt
       }
     });
 
@@ -111,10 +124,18 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // Validar IDs
+    const userIdInt = parseInt(userId);
+    const mangaIdInt = parseInt(mangaId);
+    
+    if (isNaN(userIdInt) || isNaN(mangaIdInt)) {
+      return NextResponse.json({ error: 'IDs devem ser números válidos' }, { status: 400 });
+    }
+
     const result = await prisma.favorito.deleteMany({
       where: {
-        usuario_id: parseInt(userId),
-        manga_id: parseInt(mangaId)
+        usuario_id: userIdInt,
+        manga_id: mangaIdInt
       }
     });
 

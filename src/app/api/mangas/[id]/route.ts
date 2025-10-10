@@ -197,7 +197,7 @@ export async function PUT(request: NextRequest, context: any) {
     }
 
     const mangaId = parseInt(id);
-    const { titulo, autor, generos, status } = await request.json();
+    const { titulo, autor, generos, description, status } = await request.json();
 
     const client = await pool.connect();
 
@@ -206,9 +206,9 @@ export async function PUT(request: NextRequest, context: any) {
 
       await client.query(
         `UPDATE mangas 
-         SET titulo = $1, autor = $2, generos = $3, status = $4, updated_at = NOW()
-         WHERE id = $5`,
-        [titulo, autor, generos, status, mangaId]
+         SET titulo = $1, autor = $2, generos = $3, description = $4, status = $5, updated_at = NOW()
+         WHERE id = $6`,
+        [titulo, autor, generos, description, status, mangaId]
       );
 
       await client.query('COMMIT');

@@ -37,6 +37,7 @@ model Manga {
   status        Status   @default(EM_ANDAMENTO)
   visualizacoes Int      @default(0)
   capa          String?
+  description   String?  // Descrição do mangá
   data_adicao   DateTime @default(now())
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt

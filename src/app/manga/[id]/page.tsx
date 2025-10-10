@@ -76,7 +76,7 @@ export default function MangaPage() {
           capa: mangaData.capa || '/images/mangas/placeholder.jpg',
           visualizacoes: mangaData.visualizacoes || 0,
           dataAdicao: mangaData.data_adicao || mangaData.dataAdicao || new Date().toISOString(),
-          descricao: mangaData.descricao || `Descrição de ${mangaData.titulo}`,
+          descricao: mangaData.description || mangaData.descricao || `Descrição de ${mangaData.titulo}`,
           capitulos: mangaData.capitulos || []
         };
         

@@ -276,6 +276,7 @@ export async function POST(request: NextRequest) {
       const titulo = formData.get('titulo') as string;
       const autor = formData.get('autor') as string;
       const generos = formData.get('generos') as string;
+      const description = formData.get('description') as string;
       const status = formData.get('status') as string;
       const capa = formData.get('capa') as File;
       const capituloNumero = formData.get('capitulo.numero') as string;
@@ -296,15 +297,22 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Campo 'capitulo.paginas' ausente ou vazio na requisição" }, { status: 400 });
       }
       
+      // Validar número do capítulo
+      const capituloNumeroInt = parseInt(capituloNumero);
+      if (isNaN(capituloNumeroInt)) {
+        return NextResponse.json({ error: "Número do capítulo deve ser um número válido" }, { status: 400 });
+      }
+      
       // Extrair dados do FormData com verificações de segurança
       body = {
         titulo,
         autor: autor || null,
         generos: generos || "",
+        description: description || null,
         status: status || 'EM_ANDAMENTO',
         capa,
         capitulo: {
-          numero: parseInt(capituloNumero),
+          numero: capituloNumeroInt,
           titulo: capituloTitulo || `Capítulo ${capituloNumero}`,
           paginas
         }
@@ -318,6 +326,7 @@ export async function POST(request: NextRequest) {
         titulo: body.titulo,
         autor: body.autor,
         generos: body.generos,
+        description: body.description,
         status: body.status,
         capa: body.capa ? '[Base64 Image]' : 'null',
         capitulo: {
@@ -328,7 +337,7 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    const { titulo, autor, generos, status, capa, capitulo } = body;
+    const { titulo, autor, generos, description, status, capa, capitulo } = body;
 
     if (!titulo || !capa || !capitulo?.paginas || capitulo.paginas.length === 0) {
       return NextResponse.json({ error: 'Dados obrigatórios não fornecidos' }, { status: 400 });
@@ -375,10 +384,10 @@ export async function POST(request: NextRequest) {
       
       // Inserir mangá
       const mangaResult = await client.query(`
-        INSERT INTO mangas (titulo, autor, generos, status, capa, updated_at)
-        VALUES ($1, $2, $3, $4, $5, NOW())
+        INSERT INTO mangas (titulo, autor, generos, description, status, capa, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW())
         RETURNING id
-      `, [titulo, autor || null, listaGeneros, status || 'EM_ANDAMENTO', urlCapa]);
+      `, [titulo, autor || null, listaGeneros, description || null, status || 'EM_ANDAMENTO', urlCapa]);
 
       const mangaId = mangaResult.rows[0].id;
 

@@ -78,7 +78,7 @@ export async function DELETE(
         await client.query(
           `UPDATE paginas 
            SET numero = $1, updated_at = $2
-           WHERE id = $4`,
+           WHERE id = $3`,
           [i + 1, new Date(), paginasRestantes.rows[i].id]
         );
       }
@@ -87,7 +87,7 @@ export async function DELETE(
       await client.query(
         `UPDATE capitulos 
          SET updated_at = $1
-         WHERE id = $3`,
+         WHERE id = $2`,
         [new Date(), pagina.capitulo_id]
       );
 

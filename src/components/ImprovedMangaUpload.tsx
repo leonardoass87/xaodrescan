@@ -14,6 +14,7 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
     titulo: '',
     autor: '',
     generos: '',
+    description: '',
     status: 'EM_ANDAMENTO',
     capituloNumero: 1,
     capituloTitulo: ''
@@ -150,6 +151,7 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
       formDataToSend.append('titulo', formData.titulo);
       formDataToSend.append('autor', formData.autor);
       formDataToSend.append('generos', formData.generos);
+      formDataToSend.append('description', formData.description);
       formDataToSend.append('status', formData.status);
       
       // Adicionar capa (obrigatória)
@@ -190,6 +192,7 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
         titulo: '',
         autor: '',
         generos: '',
+        description: '',
         status: 'EM_ANDAMENTO',
         capituloNumero: 1,
         capituloTitulo: ''
@@ -293,6 +296,19 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
               className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-white text-sm font-medium mb-2">
+            Descrição
+          </label>
+          <textarea
+            value={formData.description}
+            onChange={(e) => setFormData({...formData, description: e.target.value})}
+            placeholder="Descreva a história do mangá..."
+            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white resize-none"
+            rows={4}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -424,6 +440,7 @@ export default function ImprovedMangaUpload({ onSuccess }: ImprovedMangaUploadPr
                 titulo: '',
                 autor: '',
                 generos: '',
+                description: '',
                 status: 'EM_ANDAMENTO',
                 capituloNumero: 1,
                 capituloTitulo: ''
