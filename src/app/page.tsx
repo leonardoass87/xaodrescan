@@ -38,7 +38,7 @@ export default function Home() {
           <p className="text-xl text-gray-300 mb-8">
             Descubra e leia os melhores mangás online
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+    {/*       <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               href="/catalogo"
               className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
@@ -51,7 +51,7 @@ export default function Home() {
             >
               Ver Lançamentos
             </Link>
-          </div>
+          </div> */}
         </div>
 
         {/* Grid de Mangás */}

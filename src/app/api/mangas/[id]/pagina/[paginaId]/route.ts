@@ -74,6 +74,19 @@ export async function DELETE(
         [pagina.capitulo_id]
       );
 
+      // Estratégia em duas etapas para evitar conflitos de chave única
+      
+      // ETAPA 1: Definir números temporários (negativos) para evitar conflitos
+      for (let i = 0; i < paginasRestantes.rows.length; i++) {
+        await client.query(
+          `UPDATE paginas 
+           SET numero = $1, updated_at = $2
+           WHERE id = $3`,
+          [-(i + 1), new Date(), paginasRestantes.rows[i].id]
+        );
+      }
+      
+      // ETAPA 2: Atualizar para os números finais
       for (let i = 0; i < paginasRestantes.rows.length; i++) {
         await client.query(
           `UPDATE paginas 

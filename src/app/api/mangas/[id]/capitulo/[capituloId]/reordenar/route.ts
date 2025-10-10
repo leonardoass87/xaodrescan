@@ -47,7 +47,19 @@ export async function PUT(
         return NextResponse.json({ error: 'Capítulo não encontrado' }, { status: 404 });
       }
 
-      // Atualizar a ordem das páginas
+      // Estratégia em duas etapas para evitar conflitos de chave única
+      
+      // ETAPA 1: Definir números temporários (negativos) para evitar conflitos
+      for (let i = 0; i < ordemPaginas.length; i++) {
+        await client.query(
+          `UPDATE paginas 
+           SET numero = $1, updated_at = $2
+           WHERE id = $3 AND capitulo_id = $4`,
+          [-(i + 1), new Date(), ordemPaginas[i], capId]
+        );
+      }
+      
+      // ETAPA 2: Atualizar para os números finais
       for (let i = 0; i < ordemPaginas.length; i++) {
         await client.query(
           `UPDATE paginas 
@@ -132,7 +144,20 @@ export async function POST(
         return NextResponse.json({ error: 'Capítulo não encontrado' }, { status: 404 });
       }
 
-      // Atualizar a ordem das páginas
+      // Estratégia em duas etapas para evitar conflitos de chave única
+      
+      // ETAPA 1: Definir números temporários (negativos) para evitar conflitos
+      for (let i = 0; i < paginas.length; i++) {
+        const pagina = paginas[i];
+        await client.query(
+          `UPDATE paginas 
+           SET numero = $1, updated_at = NOW()
+           WHERE id = $2 AND capitulo_id = $3`,
+          [-(i + 1), pagina.id, capId]
+        );
+      }
+      
+      // ETAPA 2: Atualizar para os números finais
       for (let i = 0; i < paginas.length; i++) {
         const pagina = paginas[i];
         await client.query(

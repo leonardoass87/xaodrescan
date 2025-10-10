@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Image from 'next/image';
 import MangaImage from './MangaImage';
 
 interface MangaImageHybridProps {
@@ -26,16 +27,22 @@ export default function MangaImageHybrid({ titulo, capa, className = "" }: Manga
         </div>
       )}
       
-      <img
+      <Image
         src={capa}
         alt={titulo}
-        className="w-full h-full object-cover rounded-lg"
+        fill
+        className="object-cover rounded-lg"
         onLoad={() => setIsLoading(false)}
         onError={() => {
           setImageError(true);
           setIsLoading(false);
         }}
         style={{ display: isLoading ? 'none' : 'block' }}
+        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+        quality={75}
+        priority={false}
+        placeholder="blur"
+        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
       />
     </div>
   );
