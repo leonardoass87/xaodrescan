@@ -193,7 +193,7 @@ export default function Header() {
                 {pathname === "/" && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
               </Link>
             </li>
-            <li>
+       {/*      <li>
               <Link 
                 href="/catalogo" 
                 onClick={() => setIsMenuOpen(false)}
@@ -206,9 +206,9 @@ export default function Header() {
                 <span className="font-medium">Catálogo</span>
                 {pathname === "/catalogo" && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
               </Link>
-            </li>
-            <li>
-              <Link 
+            </li> */}
+            {/* <li>
+              {/* <Link 
                 href="/lancamentos" 
                 onClick={() => setIsMenuOpen(false)}
                 className={`flex items-center justify-between py-4 px-4 transition-all duration-200 ${
@@ -219,8 +219,8 @@ export default function Header() {
               >
                 <span className="font-medium">Lançamentos</span>
                 {pathname === "/lancamentos" && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
-              </Link>
-            </li>
+              </Link> 
+            </li> */}
             {user && (
               <li>
                 <Link 

@@ -5,7 +5,7 @@ import { useFavoritos } from '@/hooks/useFavoritos';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import MangaImageHybrid from '@/components/MangaImageHybrid';
+import CachedMangaImage from '@/components/CachedMangaImage';
 
 export default function MeusFavoritos() {
   const { user, isLoading: authLoading } = useAuth();
@@ -96,7 +96,7 @@ export default function MeusFavoritos() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {favoritos.map((favorito) => (
               <div 
                 key={favorito.id} 
@@ -105,7 +105,7 @@ export default function MeusFavoritos() {
                 <Link href={`/manga/${favorito.manga_id}`}>
                   <div className="relative">
                     <div className="w-full h-48 sm:h-56">
-                      <MangaImageHybrid 
+                      <CachedMangaImage 
                         titulo={favorito.titulo}
                         capa={favorito.capa}
                         className="w-full h-full object-cover"

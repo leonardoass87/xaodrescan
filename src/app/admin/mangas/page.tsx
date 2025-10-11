@@ -519,7 +519,7 @@ export default function MangasPage() {
 
       {/* Grid de Mangás */}
       {visualizacao === "grid" ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {mangasFiltrados.map((manga) => (
             <div key={manga.id} className="bg-gradient-to-br from-black/40 to-black/20 backdrop-blur-sm border border-red-500/20 rounded-2xl overflow-hidden hover:border-red-500/40 transition-all duration-300 group hover:scale-105">
               <div className="relative">
