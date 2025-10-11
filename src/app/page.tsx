@@ -2,9 +2,13 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useMangasCombinados } from '@/hooks/useMangasCombinados';
+import { preloadImages } from '@/hooks/useImageCache';
+import { usePersistentImageCache } from '@/hooks/usePersistentImageCache';
 import MangaCard from '@/components/MangaCard';
 import Pagination from '@/components/Pagination';
+import CacheDebug from '@/components/CacheDebug';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 export default function Home() {
   const { user, isLoading } = useAuth();
@@ -18,6 +22,23 @@ export default function Home() {
     mudarPagina,
     limite
   } = useMangasCombinados();
+
+  // Inicializar cache persistente
+  usePersistentImageCache();
+
+  // Pré-carregar imagens dos mangás visíveis
+  useEffect(() => {
+    if (mangas.length > 0) {
+      const imageUrls = mangas
+        .filter(manga => manga.capa && manga.capa.startsWith('/'))
+        .map(manga => manga.capa)
+        .slice(0, 8); // Pré-carregar apenas as primeiras 8 imagens
+      
+      if (imageUrls.length > 0) {
+        preloadImages(imageUrls).catch(console.error);
+      }
+    }
+  }, [mangas]);
 
   if (loading) {
     return (
@@ -145,6 +166,9 @@ export default function Home() {
           )}
         </div>
       </div>
+      
+      {/* Debug do cache (apenas em desenvolvimento) */}
+      <CacheDebug />
     </div>
   );
 }

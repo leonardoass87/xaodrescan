@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Manga } from '@/types/manga';
 import FavoritoButton from './FavoritoButton';
-import OptimizedMangaImage from './OptimizedMangaImage';
+import CachedMangaImage from './CachedMangaImage';
 
 interface MangaCardProps {
   manga: Manga;
@@ -39,11 +39,10 @@ export default function MangaCard({ manga, showFavorito = true }: MangaCardProps
       <Link href={`/manga/${manga.id}`}>
         <div className="relative">
           <div className="w-full h-48 sm:h-56 md:h-64">
-            <OptimizedMangaImage 
+            <CachedMangaImage 
               titulo={manga.titulo}
               capa={manga.capa}
               className="w-full h-full object-cover rounded-t-2xl"
-              priority={false}
             />
           </div>
           <div className="absolute top-2 right-2">
