@@ -54,7 +54,7 @@ export const loadImageCache = (): Record<string, CacheEntry> => {
       return now - cacheEntry.timestamp < CACHE_EXPIRY;
     });
     
-    return Object.fromEntries(validEntries);
+    return Object.fromEntries(validEntries) as Record<string, CacheEntry>;
   } catch (error) {
     console.warn('Erro ao carregar cache de imagens:', error);
     return {};
