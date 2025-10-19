@@ -6,6 +6,8 @@ import FavoritoButton from '@/components/FavoritoButton';
 import MangaImageHybrid from '@/components/MangaImageHybrid';
 import Link from 'next/link';
 import { formatDateInSaoPaulo } from '@/utils/dateFormat';
+import MangaStructuredData from '@/components/StructuredData';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 interface Capitulo {
   id: number;
@@ -166,13 +168,13 @@ export default function MangaPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900">
+      <MangaStructuredData manga={manga} />
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <nav className="mb-6">
-          <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-            ← Voltar ao início
-          </Link>
-        </nav>
+        <Breadcrumbs items={[
+          { label: 'Catálogo', href: '/catalogo' },
+          { label: manga.titulo }
+        ]} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Imagem e informações básicas */}

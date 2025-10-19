@@ -9,6 +9,7 @@ import Pagination from '@/components/Pagination';
 import CacheDebug from '@/components/CacheDebug';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { WebsiteStructuredData } from '@/components/StructuredData';
 
 export default function Home() {
   const { user, isLoading } = useAuth();
@@ -50,6 +51,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900">
+      <WebsiteStructuredData />
       <div className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">

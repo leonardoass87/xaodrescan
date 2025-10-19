@@ -1,6 +1,17 @@
-'use client';
-
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Lançamentos de Mangás - XAODRESCAN',
+  description: 'Confira os lançamentos mais recentes de mangás no XAODRESCAN. Novos capítulos e mangás adicionados diariamente. Leia grátis!',
+  keywords: ['lançamentos mangás', 'mangás novos', 'capítulos recentes', 'atualizações mangás', 'xaodrescan'],
+  openGraph: {
+    title: 'Lançamentos de Mangás - XAODRESCAN',
+    description: 'Confira os lançamentos mais recentes de mangás no XAODRESCAN. Novos capítulos e mangás adicionados diariamente.',
+    type: 'website',
+    url: 'https://xaodrescan.mangazinho.site/lancamentos',
+  },
+};
 
 export default function LancamentosPage() {
   return (

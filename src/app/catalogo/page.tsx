@@ -1,6 +1,17 @@
-'use client';
-
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Catálogo de Mangás - XAODRESCAN',
+  description: 'Explore nosso catálogo completo de mangás online. Encontre seus mangás favoritos por gênero, autor ou status. Leia grátis no XAODRESCAN.',
+  keywords: ['catálogo mangás', 'mangás por gênero', 'buscar mangás', 'lista mangás', 'xaodrescan'],
+  openGraph: {
+    title: 'Catálogo de Mangás - XAODRESCAN',
+    description: 'Explore nosso catálogo completo de mangás online. Encontre seus mangás favoritos por gênero, autor ou status.',
+    type: 'website',
+    url: 'https://xaodrescan.mangazinho.site/catalogo',
+  },
+};
 
 export default function CatalogoPage() {
   return (
